@@ -7,14 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": true,
-		"includes": [
-			"**",
-			"!node_modules",
-			"!dist",
-			"!build",
-			"!public/opencv",
-			"!drizzle"
-		]
+		"includes": ["**", "!node_modules", "!dist", "!build", "!drizzle"]
 	},
 	"formatter": {
 		"enabled": true,

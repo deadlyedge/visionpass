@@ -9,7 +9,7 @@
 VisionPass（视觉密语）是一个基于 **浏览器端视觉特征提取（ORB）** 与 **服务端 Hamming 比对** 的最小可验证系统（MVP）。
 
 ### 核心业务链路：
-1. **创建凭证** (`/create`)：用户选择一张参考图片并输入密语。浏览器端使用 OpenCV.js 提取灰度化及缩放后的 ORB 描述子与关键点，打包为标准 `OrbFeaturePayloadV1` JSON 发送到服务端，服务端生成随机安全 token 并将 payload 与密语持久化至 PostgreSQL，最终为用户生成读取 URL 和二维码。
+1. **创建凭证** (`/create`)：用户选择一张参考图片并输入密语。浏览器端使用 CDN 托管的高速 OpenCV.js 提取灰度化及缩放后的 ORB 描述子与关键点，打包为标准 `OrbFeaturePayloadV1` JSON 发送到服务端，服务端生成随机安全 token 并将 payload 与密语持久化至 PostgreSQL，最终为用户生成读取 URL 和二维码。
 2. **读取凭证** (`/r/$token`)：用户打开读取链接，选择一张验证图片。浏览器同样提取 ORB 特征后提交给服务端比对接口，服务端从 PostgreSQL 取出参考特征进行纯位运算 Hamming 距离比对，当匹配点数超过阈值（`MIN_GOOD_MATCHES = 25`）时，向客户端安全返回密语。
 
 ---
@@ -21,14 +21,15 @@ VisionPass（视觉密语）是一个基于 **浏览器端视觉特征提取（O
 1. **零原图传输与存储**：
    - 原始图像（无论参考图还是验证图）**严禁**上传到后端或保存至数据库/对象存储。
    - 所有图像解码、resize（最长边 640px）、灰度转换与 ORB 特征提取均在客户端完成。
-2. **服务端无重量级依赖**：
-   - 服务端（Vercel Functions）**不引入** OpenCV Node native 绑定或 Python 进程，全部比对逻辑均由 TypeScript 纯位运算（Brian Kernighan 算法）在 `server/matcher/orb-basic.ts` 中实现。
+2. **服务端无重量级依赖与自包含 API**：
+   - 服务端（Vercel Functions）**不引入** OpenCV Node native 绑定或 Python 进程，全部比对逻辑均由 TypeScript 纯位运算在 `api/verify.ts` 中实现。
+   - 每个 API 函数保持自包含或遵循 Vercel Serverless Function 打包规范。
 3. **单项目/单仓库部署**：
    - 前端采用 React 19 + Vite + TanStack Router/Query。
-   - API 位于 `api/` 目录，直接作为 Vercel Serverless Functions 运行。
+   - API 位于 `api/` 根目录，直接作为 Vercel Serverless Functions 运行。
    - 本地开发通过 `vite.config.ts` 中的 `apiDevServerPlugin` 模拟 Vercel 接口环境。
 4. **状态与元数据隔离**：
-   - `/api/credentials/:token` 只返回凭证是否存在（`{ exists: boolean }`），绝不泄露密语或特征集。
+   - `/api/credentials?token=:token` 只返回凭证是否存在（`{ exists: boolean }`），绝不泄露密语或特征集。
    - 密语仅在 `/api/verify` 匹配成功后返回。
 
 ---
@@ -38,22 +39,17 @@ VisionPass（视觉密语）是一个基于 **浏览器端视觉特征提取（O
 ```text
 visionpass/
 ├── api/                          # Vercel Serverless API 端点
-│   ├── credentials.ts            # POST /api/credentials（创建凭证）
-│   ├── credentials/[token].ts    # GET /api/credentials/:token（查询凭证元数据）
+│   ├── credentials.ts            # POST /api/credentials（创建凭证） & GET /api/credentials?token=xxx（查询凭证元数据）
 │   ├── verify.ts                 # POST /api/verify（特征比对与密语揭示）
 │   └── health.ts                 # GET /api/health（健康检查）
-├── server/                       # 服务端核心逻辑
-│   ├── db/                       # Drizzle ORM 配置与 Schema
-│   ├── matcher/                  # 独立特征匹配器 (orb-basic.ts)
-│   └── validation/               # Zod 请求校验与 Base64 规范检查
 ├── src/                          # 前端 SPA 源码
 │   ├── components/               # UI 组件 (ImagePicker, QrResult, ProcessingState)
-│   ├── lib/                      # 工具库 (api.ts, extract-orb.ts, feature-schema.ts, opencv.ts)
+│   ├── lib/                      # 前端工具库 (api.ts, extract-orb.ts, feature-schema.ts, opencv.ts, schema.ts)
 │   ├── routes/                   # 页面路由 (create.tsx, read.tsx)
 │   ├── styles/                   # 全局样式
 │   ├── app.tsx / main.tsx        # 应用入口与 React Query Provider
 │   └── router.tsx                # TanStack Router 路由树
-├── public/                       # 静态资源 (含 opencv.js 备用库)
+├── public/                       # 静态资源 (favicon 等)
 ├── drizzle/                      # 数据库迁移 SQL 文件
 ├── biome.json                    # 代码格式化与 Linter 规则
 └── vite.config.ts                # Vite 配置与本地 API 中间件

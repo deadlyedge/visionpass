@@ -1,4 +1,4 @@
-// OpenCV.js loader singleton
+// OpenCV.js loader singleton with multi-CDN fallback
 
 declare global {
 	interface Window {
@@ -93,7 +93,6 @@ export function loadOpenCV(): Promise<any> {
 
 		// Polling check every 40ms
 		const interval = setInterval(() => {
-			// If cv is a promise returned by modern emscripten
 			if (
 				window.cv &&
 				typeof window.cv.then === 'function' &&
@@ -116,17 +115,27 @@ export function loadOpenCV(): Promise<any> {
 			}
 		}, 40)
 
-		// If neither script nor CDN loaded
+		// Fallback injection if not already in index.html or if primary CDN failed
 		const existingScript = document.querySelector('script[src*="opencv.js"]')
 		if (!existingScript) {
 			const script = document.createElement('script')
-			script.src = '/opencv/opencv.js'
+			script.src =
+				'https://cdn.jsdelivr.net/npm/@techstark/opencv-js@5.0.0-release.1/dist/opencv.js'
 			script.async = true
 			script.type = 'text/javascript'
 			script.onerror = () => {
-				cleanup()
-				loadPromise = null
-				reject(new Error('无法加载 OpenCV.js 脚本文件'))
+				// Secondary fallback to unpkg CDN
+				const fallback = document.createElement('script')
+				fallback.src =
+					'https://unpkg.com/@techstark/opencv-js@5.0.0-release.1/dist/opencv.js'
+				fallback.async = true
+				fallback.type = 'text/javascript'
+				fallback.onerror = () => {
+					cleanup()
+					loadPromise = null
+					reject(new Error('无法加载 OpenCV.js 脚本文件，CDN 连接失败'))
+				}
+				document.head.appendChild(fallback)
 			}
 			document.head.appendChild(script)
 		}

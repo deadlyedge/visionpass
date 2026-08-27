@@ -11,6 +11,7 @@
 			"**",
 			"!node_modules",
 			"!dist",
+			"!.output",
 			"!build",
 			"!drizzle",
 			"!src/routeTree.gen.ts"

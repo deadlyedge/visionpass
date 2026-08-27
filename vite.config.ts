@@ -1,18 +1,31 @@
-import path from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import dotenv from 'dotenv'
+import { nitro } from 'nitro/vite'
 import { defineConfig } from 'vite'
 
 dotenv.config()
 
-// TanStack Start 官方标准 Vite / Nitro 全栈配置
+// TanStack Start + Nitro 生产全栈流水线配置
 export default defineConfig({
 	resolve: {
 		alias: {
-			'@': path.resolve(__dirname, './src'),
+			'@': import.meta.dirname ? `${import.meta.dirname}/src` : './src',
 		},
 	},
-	plugins: [tailwindcss(), tanstackStart(), viteReact()],
+	plugins: [nitro(), tailwindcss(), tanstackStart(), viteReact()],
+	build: {
+		rollupOptions: {
+			onwarn(warning, warn) {
+				if (
+					warning.code === 'UNUSED_EXTERNAL_IMPORT' &&
+					warning.exporter?.includes('@tanstack')
+				) {
+					return
+				}
+				warn(warning)
+			},
+		},
+	},
 })

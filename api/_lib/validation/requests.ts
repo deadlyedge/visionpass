@@ -1,11 +1,11 @@
-import { base64ToUint8Array } from '../../src/lib/feature-codec'
+import { base64ToUint8Array } from '../feature-codec'
 import {
 	CreateCredentialRequestSchema,
 	MATCH_CONFIG,
 	OrbFeaturePayloadSchema,
 	type OrbFeaturePayloadV1,
 	VerifyRequestSchema,
-} from '../../src/lib/feature-schema'
+} from '../feature-schema'
 
 export {
 	CreateCredentialRequestSchema,

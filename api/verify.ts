@@ -1,13 +1,13 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { eq } from 'drizzle-orm'
-import { db } from '../server/db/client'
-import { credentials } from '../server/db/schema'
-import { matchOrbBasic } from '../server/matcher/orb-basic'
+import { db } from './_lib/db/client'
+import { credentials } from './_lib/db/schema'
+import type { OrbFeaturePayloadV1 } from './_lib/feature-schema'
+import { matchOrbBasic } from './_lib/matcher/orb-basic'
 import {
 	VerifyRequestSchema,
 	validateFeaturePayloadStrict,
-} from '../server/validation/requests'
-import type { OrbFeaturePayloadV1 } from '../src/lib/feature-schema'
+} from './_lib/validation/requests'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== 'POST') {

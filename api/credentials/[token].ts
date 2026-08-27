@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { eq } from 'drizzle-orm'
-import { db } from '../../server/db/client'
-import { credentials } from '../../server/db/schema'
+import { db } from '../_lib/db/client'
+import { credentials } from '../_lib/db/schema'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== 'GET') {

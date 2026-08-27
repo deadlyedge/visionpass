@@ -1,8 +1,5 @@
-import { base64ToUint8Array } from '../../src/lib/feature-codec'
-import {
-	MATCH_CONFIG,
-	type OrbFeaturePayloadV1,
-} from '../../src/lib/feature-schema'
+import { base64ToUint8Array } from '../feature-codec'
+import { MATCH_CONFIG, type OrbFeaturePayloadV1 } from '../feature-schema'
 
 export type MatchResult = {
 	matched: boolean

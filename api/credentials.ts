@@ -1,11 +1,11 @@
 import { randomBytes } from 'node:crypto'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { db } from '../server/db/client'
-import { credentials } from '../server/db/schema'
+import { db } from './_lib/db/client'
+import { credentials } from './_lib/db/schema'
 import {
 	CreateCredentialRequestSchema,
 	validateFeaturePayloadStrict,
-} from '../server/validation/requests'
+} from './_lib/validation/requests'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== 'POST') {

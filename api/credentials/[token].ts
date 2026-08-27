@@ -16,6 +16,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	try {
+		if (!process.env.DATABASE_URL) {
+			console.error('DATABASE_URL is not defined in environment variables')
+			return res.status(500).json({
+				error: '数据库连接未配置：环境变量 DATABASE_URL 缺失。',
+			})
+		}
+
 		const result = await db
 			.select({ id: credentials.id })
 			.from(credentials)
@@ -27,8 +34,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		}
 
 		return res.status(200).json({ exists: true })
-	} catch (err) {
-		console.error('查询凭证元数据错误:', err)
-		return res.status(500).json({ error: '内部服务器错误' })
+	} catch (err: any) {
+		console.error('查询凭证元数据错误详细信息:', err)
+		return res.status(500).json({
+			error: '内部服务器错误',
+			message: err?.message || String(err),
+		})
 	}
 }

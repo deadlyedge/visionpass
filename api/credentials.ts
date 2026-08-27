@@ -14,6 +14,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	try {
+		if (!process.env.DATABASE_URL) {
+			console.error('DATABASE_URL is not defined in environment variables')
+			return res.status(500).json({
+				error:
+					'数据库连接未配置：环境变量 DATABASE_URL 缺失，请在 Vercel 中添加。',
+			})
+		}
+
 		const parsedBody = CreateCredentialRequestSchema.safeParse(req.body)
 		if (!parsedBody.success) {
 			return res.status(400).json({
@@ -63,7 +71,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		const appOrigin =
 			process.env.APP_ORIGIN ||
 			(req.headers.host
-				? `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host}`
+				? `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}`
 				: 'http://localhost:5173')
 
 		const readUrl = `${appOrigin.replace(/\/+$/, '')}/r/${token}`
@@ -73,7 +81,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			readUrl,
 		})
 	} catch (err: any) {
-		console.error('创建凭证错误:', err)
-		return res.status(500).json({ error: '内部服务器错误' })
+		console.error('创建凭证错误详细信息:', err)
+		return res.status(500).json({
+			error: '内部服务器错误',
+			message: err?.message || String(err),
+		})
 	}
 }

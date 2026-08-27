@@ -2,24 +2,27 @@
 
 VisionPass 是一个基于图像特征识别的端到端视觉密语系统（MVP）。用户可以通过上传一张参考图片来封存一段密语，接收方只有提供相同或高度相似画面的图片，才能通过特征比对解锁并查看密语。
 
+系统基于 **TanStack Start (Nitro + Vite)** 全栈框架构建，采用 **Server Functions (`createServerFn`)** 实现端到端类型安全的零 API RPC 通信。
+
 ---
 
 ## 🌟 核心特性
 
 - **隐私优先（零原图上传）**：图片仅在浏览器主线程进行灰度化与 ORB 描述子提取，原始图片永远不会上传到服务器或存储在数据库中。
+- **纯 Server Functions 通信**：无需独立 `api/` 路由与手动 `fetch`，全量使用 TanStack Start `createServerFn` 进行类型安全的前后端 RPC 调用。
 - **纯位运算比对**：服务端无复杂外部依赖，通过高性能 Hamming 距离算法（Brian Kernighan 快速位运算）在 Node.js 中高效比对。
-- **单仓全栈极简部署**：基于 React 19 + Vite + TanStack Router/Query + Vercel Functions + PostgreSQL 构建，支持一键部署至 Vercel。
-- **动态二维码生成**：凭证创建后自动生成带有安全 Token 的访问链接和二维码。
+- **全栈同构与代码共享**：Zod 数据 Schema、类型与校验工具在前端与后端无缝共享，自动享受 Tree-shaking 保护。
+- **动态二维码生成**：凭证创建后本地自动生成带有安全 Token 的访问链接和二维码。
 
 ---
 
 ## 🛠️ 技术栈
 
-- **前端**：React 19, TypeScript, Vite, Tailwind CSS, Lucide React
-- **路由与请求**：TanStack Router, TanStack Query
-- **图像算法**：OpenCV.js (浏览器端 ORB 关键点与描述子提取)
-- **后端服务**：Vercel Serverless Functions (Node.js)
+- **全栈框架**：[TanStack Start](https://tanstack.com/start) (React 19, TypeScript, Bun, Vite, Nitro)
+- **路由与数据请求**：TanStack Router, TanStack Query
+- **图像算法**：OpenCV.js (浏览器端 ORB 关键点与描述子提取，多 CDN 自动容灾)
 - **数据库 & ORM**：PostgreSQL (Neon / Supabase / 自建), Drizzle ORM
+- **样式与 UI**：Tailwind CSS v4, Lucide React
 - **代码规范**：Biome
 
 ---
@@ -45,41 +48,41 @@ bun install
 
 ```env
 DATABASE_URL=postgresql://postgres:password@localhost:5432/visionpass
-APP_ORIGIN=http://localhost:5173
+APP_ORIGIN=http://localhost:3000
 ```
 
 ### 3. 初始化数据库
 
-使用 Drizzle 将数据表推送同步到数据库：
+使用 Drizzle 将数据表结构同步到本地或远程数据库：
 
 ```bash
 bun run db:push
 ```
 
-### 4. 启动本地开发服务
+### 4. 启动全栈开发服务
 
 ```bash
 bun dev
 ```
 
-本地服务启动后访问 `http://localhost:5173`。开发服务器已内置 API 代理中间件，支持直接在本地调试 `/api/*` 服务端接口。
+本地服务启动后访问 `http://localhost:3000`。TanStack Start 会同时提供前端 SPA 与 Server Functions 的全栈 HMR 热更新支持。
 
 ---
 
 ## ☁️ Vercel 部署指南
 
-本项目可直接部署到 Vercel，无需独立运行后端服务。
+本项目原生支持一键部署到 Vercel：
 
 ### 步骤 1：准备 PostgreSQL 数据库
 推荐使用以下任意托管 PostgreSQL 数据库：
-- [Neon](https://neon.tech/)（推荐，具备 Serverless 弹性伸缩和连接池）
+- [Neon](https://neon.tech/)（推荐，Serverless 弹性伸缩和连接池支持）
 - [Supabase](https://supabase.com/)
 - 自建 PostgreSQL 实例
 
 获取数据库连接串（例如 `postgres://user:password@ep-xyz.neon.tech/neondb?sslmode=require`）。
 
 ### 步骤 2：初始化远程数据库表结构
-在本地配置好远程 `DATABASE_URL` 后运行：
+在本地将远程 `DATABASE_URL` 填入 `.env` 后运行：
 
 ```bash
 bun run db:push
@@ -88,14 +91,11 @@ bun run db:push
 ### 步骤 3：部署到 Vercel
 
 1. 将代码推送到 GitHub 仓库。
-2. 登录 [Vercel 控制台](https://vercel.com/)，点击 **Add New...** -> **Project** 并导入你的 GitHub 仓库。
-3. **Framework Preset** 选择 **Vite**。
-4. **Environment Variables**（环境变量）中配置以下两项：
-   - `DATABASE_URL`：填写步骤 1 中的 PostgreSQL 连接字符串。
+2. 登录 [Vercel 控制台](https://vercel.com/)，导入该 GitHub 仓库。
+3. **Environment Variables**（环境变量）中配置以下两项：
+   - `DATABASE_URL`：填写 PostgreSQL 连接字符串。
    - `APP_ORIGIN`：填写你的 Vercel 生产域名（如 `https://your-visionpass-domain.vercel.app`）。
-5. 点击 **Deploy** 开始部署。
-
-部署完成后即可通过生产域名体验完整的视觉密语创建与验证全流程！
+4. 点击 **Deploy** 开始全自动构建与部署。
 
 ---
 
@@ -103,9 +103,9 @@ bun run db:push
 
 | 命令 | 说明 |
 |---|---|
-| `bun dev` | 启动本地 Vite 开发服务器（含 API Mock 中间件） |
-| `bun run build` | 检查 TypeScript 类型并执行生产打包 |
-| `bun run preview` | 预览生产打包产物 |
+| `bun dev` | 启动 TanStack Start 全栈开发服务器 |
+| `bun run build` | 执行 TypeScript 类型检查与全栈生产打包 |
+| `bun run preview` | 预览生产全栈打包产物 |
 | `bun run db:push` | 将 Drizzle Schema 直接同步到 PostgreSQL |
 | `bun run db:generate` | 生成 Drizzle SQL 迁移脚本 |
 | `bunx @biomejs/biome check` | 执行代码规范与格式检查 |

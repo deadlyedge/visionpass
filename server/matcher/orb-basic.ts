@@ -1,7 +1,7 @@
 import { base64ToUint8Array } from '../../src/lib/feature-codec'
 import {
-  MATCH_CONFIG,
-  type OrbFeaturePayloadV1,
+	MATCH_CONFIG,
+	type OrbFeaturePayloadV1,
 } from '../../src/lib/feature-schema'
 
 export type MatchResult = {

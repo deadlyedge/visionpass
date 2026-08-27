@@ -10,15 +10,34 @@
 		"includes": [
 			"**",
 			"!node_modules",
-			"!.next",
 			"!dist",
 			"!build",
-			"!**/components/ui"
+			"!public/opencv",
+			"!drizzle"
 		]
 	},
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab"
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"preset": "recommended",
+			"suspicious": {
+				"noExplicitAny": "off"
+			},
+			"style": {
+				"noNonNullAssertion": "off"
+			},
+			"a11y": {
+				"noLabelWithoutControl": "off",
+				"useKeyWithClickEvents": "off",
+				"useAriaPropsSupportedByRole": "off",
+				"noStaticElementInteractions": "off",
+				"useButtonType": "off"
+			}
+		}
 	},
 	"javascript": {
 		"formatter": {

@@ -83,9 +83,7 @@ function apiDevServerPlugin(): Plugin {
 					const credMatch = url.match(/^\/api\/credentials\/([^/]+)$/)
 					if (credMatch) {
 						vercelReq.query.token = credMatch[1]
-						const mod = await server.ssrLoadModule(
-							'/api/credentials/[token].ts',
-						)
+						const mod = await server.ssrLoadModule('/api/credentials.ts')
 						return mod.default(vercelReq, vercelRes)
 					}
 

@@ -16,6 +16,3 @@ export const credentials = pgTable('credentials', {
 		.defaultNow()
 		.notNull(),
 })
-
-export type Credential = typeof credentials.$inferSelect
-export type NewCredential = typeof credentials.$inferInsert

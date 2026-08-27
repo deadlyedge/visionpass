@@ -1,7 +1,35 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { eq } from 'drizzle-orm'
-import { db } from '../_lib/db/client'
-import { credentials } from '../_lib/db/schema'
+import {
+	jsonb,
+	pgTable,
+	text,
+	timestamp,
+	uuid,
+	varchar,
+} from 'drizzle-orm/pg-core'
+import { drizzle } from 'drizzle-orm/postgres-js'
+import postgres from 'postgres'
+
+// Database Schema & Connection
+const credentials = pgTable('credentials', {
+	id: uuid('id').defaultRandom().primaryKey(),
+	token: varchar('token', { length: 64 }).notNull().unique(),
+	secret: text('secret').notNull(),
+	featurePayload: jsonb('feature_payload').notNull(),
+	createdAt: timestamp('created_at', { withTimezone: true })
+		.defaultNow()
+		.notNull(),
+})
+
+const connectionString = process.env.DATABASE_URL
+const client = postgres(connectionString || '', {
+	prepare: false,
+	max: 1,
+	ssl: connectionString?.includes('localhost') ? false : 'require',
+	connect_timeout: 10,
+})
+const db = drizzle(client, { schema: { credentials } })
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== 'GET') {

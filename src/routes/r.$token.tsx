@@ -1,16 +1,25 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { createFileRoute } from '@tanstack/react-router'
 import { AlertCircle, KeyRound, Lock, ShieldAlert, Unlock } from 'lucide-react'
 import { useState } from 'react'
 import { ImagePicker } from '../components/image-picker'
 import { ProcessingState } from '../components/processing-state'
-import { getCredentialMeta, verifyCredential } from '../lib/api'
 import { extractOrbFeatures } from '../lib/extract-orb'
+import {
+	getCredentialMetaFn,
+	verifyCredentialFn,
+} from '../server/functions/credentials'
 
-interface ReadPageProps {
-	token: string
+export const Route = createFileRoute('/r/$token')({
+	component: ReadRouteComponent,
+})
+
+function ReadRouteComponent() {
+	const { token } = Route.useParams()
+	return <ReadPage token={token} />
 }
 
-export function ReadPage({ token }: ReadPageProps) {
+export function ReadPage({ token }: { token: string }) {
 	const [file, setFile] = useState<File | null>(null)
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 	const [progressMsg, setProgressMsg] = useState<string>('')
@@ -18,13 +27,14 @@ export function ReadPage({ token }: ReadPageProps) {
 	const [verificationFailed, setVerificationFailed] = useState(false)
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
+	// Check token metadata via Server Function
 	const {
 		data: meta,
 		isLoading: isCheckingMeta,
 		error: metaError,
 	} = useQuery({
 		queryKey: ['credentialMeta', token],
-		queryFn: () => getCredentialMeta(token),
+		queryFn: () => getCredentialMetaFn({ data: { token } }),
 		retry: false,
 	})
 
@@ -35,14 +45,23 @@ export function ReadPage({ token }: ReadPageProps) {
 			setVerificationFailed(false)
 			setRevealedSecret(null)
 
+			// Step 1: Extract ORB features in browser
 			const { payload, previewUrl: scaledPreview } = await extractOrbFeatures(
 				file,
 				(msg) => setProgressMsg(msg),
 			)
 			setPreviewUrl(scaledPreview)
 
+			// Step 2: Call Server Function to verify
 			setProgressMsg('正在与服务端参考特征进行匹配比对...')
-			return await verifyCredential({ token, feature: payload })
+			const result = await verifyCredentialFn({
+				data: {
+					token,
+					feature: payload,
+				},
+			})
+
+			return result
 		},
 		onSuccess: (result) => {
 			setProgressMsg('')

@@ -1,28 +1,26 @@
 import path from 'node:path'
-
 import tailwindcss from '@tailwindcss/vite'
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
 import dotenv from 'dotenv'
-
 import { defineConfig, type Plugin } from 'vite'
 
 dotenv.config()
 
 /**
- * Custom Vite Plugin to simulate Vercel Serverless Functions (/api/*) in local development.
+ * Vite Plugin: 自动在本地开发时代理 /_server/* 到 src/server/functions/handlers
  */
-function apiDevServerPlugin(): Plugin {
+function serverFnDevPlugin(): Plugin {
 	return {
-		name: 'api-dev-server',
+		name: 'server-fn-dev-server',
 		configureServer(server) {
 			server.middlewares.use(async (req, res, next) => {
 				const url = req.url?.split('?')[0] || ''
-				if (!url.startsWith('/api/')) {
+				if (!url.startsWith('/_server/')) {
 					return next()
 				}
 
 				try {
-					// Parse request body for POST/PUT requests
 					const buffers: Buffer[] = []
 					for await (const chunk of req) {
 						buffers.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk)
@@ -40,56 +38,50 @@ function apiDevServerPlugin(): Plugin {
 						}
 					}
 
-					// Mock VercelRequest / VercelResponse
 					const urlObj = new URL(req.url || '', `http://${req.headers.host}`)
 					const queryParams: Record<string, string> = {}
 					urlObj.searchParams.forEach((value, key) => {
 						queryParams[key] = value
 					})
 
-					const vercelReq: any = req
-					vercelReq.body = parsedBody
-					vercelReq.query = queryParams
+					const {
+						handleCreateCredential,
+						handleGetCredentialMeta,
+						handleVerifyCredential,
+					} = await server.ssrLoadModule('/src/server/functions/handlers.ts')
 
-					// Add helpers to vercelRes
-					const vercelRes: any = res
-					vercelRes.status = (code: number) => {
-						res.statusCode = code
-						return vercelRes
-					}
-					vercelRes.json = (jsonBody: any) => {
-						res.setHeader('Content-Type', 'application/json')
-						res.end(JSON.stringify(jsonBody))
-						return vercelRes
-					}
+					res.setHeader('Content-Type', 'application/json')
 
-					// Route matching
-					if (url === '/api/health') {
-						const mod = await server.ssrLoadModule('/api/health.ts')
-						return mod.default(vercelReq, vercelRes)
-					}
-
-					if (url === '/api/credentials') {
-						const mod = await server.ssrLoadModule('/api/credentials.ts')
-						return mod.default(vercelReq, vercelRes)
-					}
-
-					if (url === '/api/verify') {
-						const mod = await server.ssrLoadModule('/api/verify.ts')
-						return mod.default(vercelReq, vercelRes)
+					if (url === '/_server/credentials') {
+						if (req.method === 'POST') {
+							const result = await handleCreateCredential(
+								parsedBody,
+								req.headers,
+							)
+							res.statusCode = result.status
+							res.end(JSON.stringify(result.data))
+							return
+						}
+						if (req.method === 'GET') {
+							const token = queryParams.token || queryParams.id || ''
+							const result = await handleGetCredentialMeta(token)
+							res.statusCode = result.status
+							res.end(JSON.stringify(result.data))
+							return
+						}
 					}
 
-					// Dynamic route: /api/credentials/:token
-					const credMatch = url.match(/^\/api\/credentials\/([^/]+)$/)
-					if (credMatch) {
-						vercelReq.query.token = credMatch[1]
-						const mod = await server.ssrLoadModule('/api/credentials.ts')
-						return mod.default(vercelReq, vercelRes)
+					if (url === '/_server/verify' && req.method === 'POST') {
+						const result = await handleVerifyCredential(parsedBody)
+						res.statusCode = result.status
+						res.end(JSON.stringify(result.data))
+						return
 					}
 
-					return next()
+					res.statusCode = 404
+					res.end(JSON.stringify({ error: 'Not Found' }))
 				} catch (err: any) {
-					console.error('[API Dev Server Error]:', err)
+					console.error('[ServerFn Dev Error]:', err)
 					res.statusCode = 500
 					res.setHeader('Content-Type', 'application/json')
 					res.end(
@@ -103,7 +95,12 @@ function apiDevServerPlugin(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
-	plugins: [react(), tailwindcss(), apiDevServerPlugin()],
+	plugins: [
+		TanStackRouterVite({ autoCodeSplitting: true }),
+		serverFnDevPlugin(),
+		react(),
+		tailwindcss(),
+	],
 	resolve: {
 		alias: {
 			'@': path.resolve(__dirname, './src'),

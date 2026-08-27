@@ -2,12 +2,8 @@
 	"version": 2,
 	"rewrites": [
 		{
-			"source": "/api/credentials/:token",
-			"destination": "/api/credentials?token=:token"
-		},
-		{
-			"source": "/api/(.*)",
-			"destination": "/api/$1"
+			"source": "/_server/(.*)",
+			"destination": "/api/_server"
 		},
 		{
 			"source": "/(.*)",

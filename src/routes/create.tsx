@@ -1,12 +1,16 @@
 import { useMutation } from '@tanstack/react-query'
+import { createFileRoute } from '@tanstack/react-router'
 import { AlertCircle, Shield, Sparkles } from 'lucide-react'
-import type React from 'react'
 import { useState } from 'react'
 import { ImagePicker } from '../components/image-picker'
 import { ProcessingState } from '../components/processing-state'
 import { QrResult } from '../components/qr-result'
-import { createCredential } from '../lib/api'
 import { extractOrbFeatures } from '../lib/extract-orb'
+import { createCredentialFn } from '../server/functions/credentials'
+
+export const Route = createFileRoute('/create')({
+	component: CreatePage,
+})
 
 export function CreatePage() {
 	const [file, setFile] = useState<File | null>(null)
@@ -30,11 +34,13 @@ export function CreatePage() {
 			)
 			setPreviewUrl(scaledPreview)
 
-			// Step 2: Send secret and feature payload to backend
+			// Step 2: Send secret and feature payload to server function
 			setProgressMsg('正在保存凭证并生成二维码...')
-			const res = await createCredential({
-				secret: secret.trim(),
-				feature: payload,
+			const res = await createCredentialFn({
+				data: {
+					secret: secret.trim(),
+					feature: payload,
+				},
 			})
 
 			return res
@@ -75,7 +81,7 @@ export function CreatePage() {
 			<div className="text-center space-y-2">
 				<div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs font-medium text-indigo-400 mb-2">
 					<Shield className="w-3.5 h-3.5" />
-					<span>视觉密语 · 最小可验证模型 (MVP)</span>
+					<span>视觉密语 · TanStack Start 全栈架构 (v5.0)</span>
 				</div>
 				<h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
 					创建视觉密语

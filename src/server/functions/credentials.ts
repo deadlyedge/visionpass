@@ -13,7 +13,7 @@ import { decryptSecret, encryptSecret } from '../crypto/secrets'
 import { generateTokenPair, hashToken } from '../crypto/tokens'
 import { db } from '../db/client'
 import { credentials, verificationAttempts } from '../db/schema'
-import { matchOrbBasic } from '../matcher/orb-basic'
+import { orbHammingRansacMatcherV1 } from '../matcher/orb-hamming-ransac-v1'
 import { serverLogger } from '../utils/logger'
 
 function validateFeaturePayloadStrict(feature: OrbFeaturePayloadV1) {
@@ -87,7 +87,7 @@ export const createCredentialFn = createServerFn({ method: 'POST' })
 					secretAuthTag: encrypted.authTag,
 					secretVersion: encrypted.version,
 					featurePayload: feature,
-					matcherId: 'orb-basic-v1',
+					matcherId: orbHammingRansacMatcherV1.id,
 					expiresAt,
 					activatedAt: now,
 				})
@@ -157,7 +157,7 @@ export const getCredentialMetaFn = createServerFn({ method: 'GET' })
 
 /**
  * 3. 验证比对凭证 Server Function (原生 createServerFn)
- * 支持双 Token 哈希索引、ORB 纯位运算比对、AES-256-GCM 解密与审计日志
+ * 支持双 Token 哈希索引、ORB RANSAC 几何内点比对、AES-256-GCM 解密与审计日志
  */
 export const verifyCredentialFn = createServerFn({ method: 'POST' })
 	.validator((data: unknown) => VerifyRequestSchema.parse(data))
@@ -210,12 +210,19 @@ export const verifyCredentialFn = createServerFn({ method: 'POST' })
 		}
 
 		const referenceFeature = row.featurePayload as OrbFeaturePayloadV1
-		const matchResult = matchOrbBasic(queryFeature, referenceFeature)
+		const matchResult = orbHammingRansacMatcherV1.match({
+			query: queryFeature,
+			reference: referenceFeature,
+		})
 
 		serverLogger.info('verifyCredential', '特征比对完成', {
 			credentialId: row.id,
 			matched: matchResult.matched,
+			score: matchResult.score,
 			goodMatchCount: matchResult.goodMatchCount,
+			inlierCount: matchResult.inlierCount,
+			inlierRatio: matchResult.inlierRatio,
+			reason: matchResult.reason,
 		})
 
 		// 记录验证审计日志
@@ -223,8 +230,11 @@ export const verifyCredentialFn = createServerFn({ method: 'POST' })
 			await db.insert(verificationAttempts).values({
 				credentialId: row.id,
 				result: matchResult.matched ? 'matched' : 'failed',
-				matcherId: 'orb-basic-v1',
+				matcherId: orbHammingRansacMatcherV1.id,
+				score: String(matchResult.score),
 				goodMatchCount: matchResult.goodMatchCount,
+				inlierCount: matchResult.inlierCount,
+				inlierRatio: String(matchResult.inlierRatio),
 			})
 		} catch (auditErr) {
 			serverLogger.warn('verifyCredential', '记录审计日志失败', {

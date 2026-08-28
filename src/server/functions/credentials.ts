@@ -1,14 +1,14 @@
 import { randomBytes } from 'node:crypto'
 import { createServerFn } from '@tanstack/react-start'
 import { eq } from 'drizzle-orm'
-import { base64ToUint8Array } from '../../lib/feature-codec'
+import { base64ToUint8Array } from '@/lib/feature-codec'
 import {
 	CreateCredentialRequestSchema,
 	MATCH_CONFIG,
 	OrbFeaturePayloadSchema,
 	type OrbFeaturePayloadV1,
 	VerifyRequestSchema,
-} from '../../lib/feature-schema'
+} from '@/lib/feature-schema'
 import { db } from '../db/client'
 import { credentials } from '../db/schema'
 import { matchOrbBasic } from '../matcher/orb-basic'

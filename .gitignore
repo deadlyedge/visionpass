@@ -39,3 +39,6 @@ dist-ssr
 
 # Drizzle cache / local files
 drizzle/meta/_journal.json.tmp
+
+# References
+references

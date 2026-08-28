@@ -16,8 +16,10 @@ export default defineConfig({
 	},
 	plugins: [
 		nitro({
-			// Nitro 生产环境打包参数与预设
-			preset: 'node-server',
+			// 当在 Vercel 平台或设置了 NITRO_PRESET=vercel 时自动启用 vercel 预设，否则使用 node-server
+			preset:
+				process.env.NITRO_PRESET ||
+				(process.env.VERCEL ? 'vercel' : 'node-server'),
 			routeRules: {
 				'/**': {
 					headers: {

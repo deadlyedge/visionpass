@@ -5,6 +5,7 @@ import { base64ToUint8Array } from '@/lib/feature-codec'
 import {
 	CreateCredentialRequestSchema,
 	MATCH_CONFIG,
+	normalizeFeaturePayload,
 	OrbFeaturePayloadSchema,
 	type OrbFeaturePayloadV1,
 	VerifyRequestSchema,
@@ -16,28 +17,29 @@ import { credentials, verificationAttempts } from '../db/schema'
 import { orbHammingRansacMatcherV1 } from '../matcher/orb-hamming-ransac-v1'
 import { serverLogger } from '../utils/logger'
 
-function validateFeaturePayloadStrict(feature: OrbFeaturePayloadV1) {
-	const parsed = OrbFeaturePayloadSchema.parse(feature)
+function validateFeaturePayloadStrict(rawFeature: OrbFeaturePayloadV1) {
+	OrbFeaturePayloadSchema.parse(rawFeature)
+	const feature = normalizeFeaturePayload(rawFeature)
 
 	let decoded: Uint8Array
 	try {
-		decoded = base64ToUint8Array(parsed.descriptorsBase64)
+		decoded = base64ToUint8Array(feature.descriptor.bytesBase64)
 	} catch (_err) {
-		throw new Error('descriptorsBase64 不是合法的 Base64 字符串')
+		throw new Error('descriptor bytesBase64 不是合法的 Base64 字符串')
 	}
 
-	const expectedLength = parsed.keypoints.length * MATCH_CONFIG.DESCRIPTOR_SIZE
+	const expectedLength = feature.keypoints.count * MATCH_CONFIG.DESCRIPTOR_SIZE
 	if (decoded.length !== expectedLength) {
 		throw new Error(
-			`描述子数据长度错误: 实际 ${decoded.length} 字节，预期 ${expectedLength} 字节 (${parsed.keypoints.length} 点 × 32 字节)`,
+			`描述子数据长度错误: 实际 ${decoded.length} 字节，预期 ${expectedLength} 字节 (${feature.keypoints.count} 点 × 32 字节)`,
 		)
 	}
 
-	if (parsed.keypoints.length > MATCH_CONFIG.MAX_KEYPOINTS) {
+	if (feature.keypoints.count > MATCH_CONFIG.MAX_KEYPOINTS) {
 		throw new Error(`特征点数量超过最大允许限制 ${MATCH_CONFIG.MAX_KEYPOINTS}`)
 	}
 
-	return { parsed, decodedDescriptors: decoded }
+	return { feature, decodedDescriptors: decoded }
 }
 
 /**

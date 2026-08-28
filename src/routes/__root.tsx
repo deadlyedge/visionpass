@@ -24,23 +24,6 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 			{ rel: 'stylesheet', href: appCss },
 			{ rel: 'icon', href: '/favicon.ico' },
 		],
-		scripts: [
-			{
-				children: `
-          window.Module = {
-            onRuntimeInitialized: function() {
-              window.__opencv_runtime_ready__ = true;
-              window.dispatchEvent(new Event("opencv-ready"));
-            }
-          };
-        `,
-			},
-			{
-				src: 'https://cdn.jsdelivr.net/npm/@techstark/opencv-js@5.0.0-release.1/dist/opencv.js',
-				async: true,
-				type: 'text/javascript',
-			},
-		],
 	}),
 	component: RootLayout,
 })
@@ -67,7 +50,7 @@ function RootLayout() {
 								</div>
 								<span>VisionPass</span>
 								<span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
-									v5.0
+									v5.1
 								</span>
 							</Link>
 
@@ -90,7 +73,7 @@ function RootLayout() {
 
 					{/* Footer */}
 					<footer className="border-t border-slate-900 py-6 text-center text-xs text-slate-600">
-						VisionPass v5.0 · TanStack Start 全栈架构与纯位运算视觉匹配
+						VisionPass v5.1 · Web Worker 视觉特征提取与 RANSAC 几何一致性检验
 					</footer>
 				</QueryClientProvider>
 				<Scripts />

@@ -1,6 +1,10 @@
 import { CONSTANTS } from '@/lib/constants'
 import { base64ToUint8Array } from '@/lib/feature-codec'
-import type { OrbFeaturePayloadV1 } from '@/lib/feature-schema'
+import {
+	type FeaturePayloadV1,
+	normalizeFeaturePayload,
+	type OrbFeaturePayloadV1,
+} from '@/lib/feature-schema'
 import { hammingDistanceDirect } from './orb-basic'
 import { ransacHomography } from './ransac'
 import type { MatcherStrategy, MatchPair, MatchResult } from './types'
@@ -10,12 +14,14 @@ export class OrbHammingRansacMatcherV1 implements MatcherStrategy {
 	readonly supportedVersions = [1] as const
 
 	match(input: {
-		query: OrbFeaturePayloadV1
-		reference: OrbFeaturePayloadV1
+		query: OrbFeaturePayloadV1 | FeaturePayloadV1
+		reference: OrbFeaturePayloadV1 | FeaturePayloadV1
 	}): MatchResult {
-		const { query, reference } = input
-		const queryCount = query.keypoints.length
-		const refCount = reference.keypoints.length
+		const query = normalizeFeaturePayload(input.query)
+		const reference = normalizeFeaturePayload(input.reference)
+
+		const queryCount = query.keypoints.count
+		const refCount = reference.keypoints.count
 
 		// 1. 特征点数量下限检查
 		if (
@@ -32,8 +38,8 @@ export class OrbHammingRansacMatcherV1 implements MatcherStrategy {
 			}
 		}
 
-		const queryBytes = base64ToUint8Array(query.descriptorsBase64)
-		const refBytes = base64ToUint8Array(reference.descriptorsBase64)
+		const queryBytes = base64ToUint8Array(query.descriptor.bytesBase64)
+		const refBytes = base64ToUint8Array(reference.descriptor.bytesBase64)
 		const descriptorSize = CONSTANTS.MATCH.DESCRIPTOR_SIZE
 		const ratioThreshold = CONSTANTS.MATCH.RATIO_THRESHOLD
 		const maxHammingDist = CONSTANTS.MATCH.MAX_HAMMING_DISTANCE
@@ -72,8 +78,8 @@ export class OrbHammingRansacMatcherV1 implements MatcherStrategy {
 				bestDist <= maxHammingDist &&
 				bestDist < secondBestDist * ratioThreshold
 			) {
-				const queryPt = query.keypoints[q]
-				const refPt = reference.keypoints[bestRefIdx]
+				const queryPt = query.keypoints.xy[q]
+				const refPt = reference.keypoints.xy[bestRefIdx]
 
 				if (queryPt && refPt) {
 					candidateMatches.push({

@@ -1,5 +1,9 @@
 import { base64ToUint8Array } from '@/lib/feature-codec'
-import { MATCH_CONFIG, type OrbFeaturePayloadV1 } from '@/lib/feature-schema'
+import {
+	MATCH_CONFIG,
+	normalizeFeaturePayload,
+	type OrbFeaturePayloadV1,
+} from '@/lib/feature-schema'
 
 export type MatchResult = {
 	matched: boolean
@@ -33,14 +37,17 @@ export function hammingDistanceDirect(
  * If best distance <= MAX_HAMMING_DISTANCE, it counts as a good match.
  */
 export function matchOrbBasic(
-	query: OrbFeaturePayloadV1,
-	reference: OrbFeaturePayloadV1,
+	rawQuery: OrbFeaturePayloadV1,
+	rawReference: OrbFeaturePayloadV1,
 ): MatchResult {
-	const queryBytes = base64ToUint8Array(query.descriptorsBase64)
-	const refBytes = base64ToUint8Array(reference.descriptorsBase64)
+	const query = normalizeFeaturePayload(rawQuery)
+	const reference = normalizeFeaturePayload(rawReference)
 
-	const queryCount = query.keypoints.length
-	const refCount = reference.keypoints.length
+	const queryBytes = base64ToUint8Array(query.descriptor.bytesBase64)
+	const refBytes = base64ToUint8Array(reference.descriptor.bytesBase64)
+
+	const queryCount = query.keypoints.count
+	const refCount = reference.keypoints.count
 
 	if (queryCount === 0 || refCount === 0) {
 		return { matched: false, goodMatchCount: 0 }

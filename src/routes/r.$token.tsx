@@ -1,10 +1,23 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { AlertCircle, KeyRound, Lock, ShieldAlert, Unlock } from 'lucide-react'
-import { useState } from 'react'
+import {
+	AlertCircle,
+	Camera,
+	FileImage,
+	KeyRound,
+	Lock,
+	ShieldAlert,
+} from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { ImagePicker } from '../components/image-picker'
 import { ProcessingState } from '../components/processing-state'
+import { CameraSourceSelect } from '../components/scanner/camera-source-select'
+import { KeypointsCanvas } from '../components/viewer/keypoints-canvas'
+import { SecretViewer } from '../components/viewer/secret-viewer'
+import { useCameraStream } from '../hooks/use-camera-stream'
+import { useLiveOrbMatcher } from '../hooks/use-live-orb-matcher'
 import { extractOrbFeatures } from '../lib/extract-orb'
+import type { FeaturePayloadV1 } from '../lib/feature-schema'
 import {
 	getCredentialMetaFn,
 	verifyCredentialFn,
@@ -20,6 +33,7 @@ function ReadRouteComponent() {
 }
 
 export function ReadPage({ token }: { token: string }) {
+	const [inputMode, setInputMode] = useState<'camera' | 'photo'>('camera')
 	const [file, setFile] = useState<File | null>(null)
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 	const [progressMsg, setProgressMsg] = useState<string>('')
@@ -27,7 +41,34 @@ export function ReadPage({ token }: { token: string }) {
 	const [verificationFailed, setVerificationFailed] = useState(false)
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-	// Check token metadata via Server Function
+	// 实时特征点绘制状态
+	const [liveKeypoints, setLiveKeypoints] = useState<
+		Array<{ x: number; y: number }>
+	>([])
+	const [liveCanvasSize, setLiveCanvasSize] = useState<{
+		w: number
+		h: number
+	}>({ w: 640, h: 480 })
+
+	// 音频提示音
+	const beepAudioRef = useRef<HTMLAudioElement | null>(null)
+
+	useEffect(() => {
+		if (typeof window !== 'undefined') {
+			beepAudioRef.current = new Audio('/audio/beep.mp3')
+		}
+	}, [])
+
+	const playSuccessBeep = () => {
+		try {
+			if (beepAudioRef.current) {
+				beepAudioRef.current.currentTime = 0
+				beepAudioRef.current.play().catch(() => {})
+			}
+		} catch (_err) {}
+	}
+
+	// 1. 凭证元数据有效性查询
 	const {
 		data: meta,
 		isLoading: isCheckingMeta,
@@ -38,22 +79,84 @@ export function ReadPage({ token }: { token: string }) {
 		retry: false,
 	})
 
-	const verifyMutation = useMutation({
+	// 2. 摄像头媒体流
+	const {
+		videoRef,
+		devices,
+		activeDeviceId,
+		setActiveDeviceId,
+		isStreaming,
+		startStream,
+		stopStream,
+		error: cameraError,
+	} = useCameraStream({ idealFacingMode: 'environment' })
+
+	// 3. 实时视频流 ORB 自动抽帧比对 Hook
+	const handleFeatureReady = async (
+		payload: FeaturePayloadV1,
+	): Promise<boolean> => {
+		try {
+			const result = await verifyCredentialFn({
+				data: {
+					token,
+					feature: payload,
+				},
+			})
+
+			if (result.matched) {
+				playSuccessBeep()
+				setRevealedSecret(result.secret)
+				stopStream()
+				return true
+			}
+			setVerificationFailed(true)
+			return false
+		} catch (err: any) {
+			console.debug('[Live Matcher] Verify request error:', err)
+			return false
+		}
+	}
+
+	const { isProcessingFrame, lastExtractedCount } = useLiveOrbMatcher({
+		videoRef,
+		active: isStreaming && inputMode === 'camera' && !revealedSecret,
+		intervalMs: 800,
+		onKeypointsExtracted: (kps, w, h) => {
+			setLiveKeypoints(kps)
+			setLiveCanvasSize({ w, h })
+		},
+		onFeatureReady: handleFeatureReady,
+	})
+
+	// 模式切换
+	useEffect(() => {
+		if (inputMode === 'camera' && !revealedSecret && meta?.exists) {
+			startStream()
+		} else {
+			stopStream()
+		}
+		return () => {
+			stopStream()
+		}
+	}, [inputMode, revealedSecret, meta?.exists, startStream, stopStream])
+
+	// 4. 照片文件单次上传比对 Mutation
+	const photoMutation = useMutation({
 		mutationFn: async () => {
 			if (!file) throw new Error('请先选择验证图片')
 			setErrorMessage(null)
 			setVerificationFailed(false)
 			setRevealedSecret(null)
 
-			// Step 1: Extract ORB features in browser
+			// Step 1: Web Worker 提取特征
 			const { payload, previewUrl: scaledPreview } = await extractOrbFeatures(
 				file,
 				(msg) => setProgressMsg(msg),
 			)
 			setPreviewUrl(scaledPreview)
 
-			// Step 2: Call Server Function to verify
-			setProgressMsg('正在与服务端参考特征进行匹配比对...')
+			// Step 2: 服务端几何比对
+			setProgressMsg('正在进行 RANSAC 单应性几何一致性校验...')
 			const result = await verifyCredentialFn({
 				data: {
 					token,
@@ -66,6 +169,7 @@ export function ReadPage({ token }: { token: string }) {
 		onSuccess: (result) => {
 			setProgressMsg('')
 			if (result.matched) {
+				playSuccessBeep()
 				setRevealedSecret(result.secret)
 			} else {
 				setVerificationFailed(true)
@@ -100,17 +204,17 @@ export function ReadPage({ token }: { token: string }) {
 						<ShieldAlert className="w-8 h-8" />
 					</div>
 					<h2 className="text-xl font-bold text-slate-100">
-						凭证不存在或链接无效
+						凭证不存在或链接已失效
 					</h2>
-					<p className="text-sm text-slate-400 max-w-sm mx-auto">
-						未找到与该 Token 关联的视觉凭证记录，可能该链接已失效或格式有误。
+					<p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto">
+						未找到与该 Token 匹配的有效凭证，可能链接已超时过期或已被撤回。
 					</p>
 					<div className="pt-2">
 						<a
-							href="/create"
-							className="inline-block px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium rounded-lg transition-colors border border-slate-700"
+							href="/read"
+							className="inline-block px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium rounded-xl transition border border-slate-700"
 						>
-							创建新的视觉凭证
+							手动输入口令或重新扫码
 						</a>
 					</div>
 				</div>
@@ -119,93 +223,196 @@ export function ReadPage({ token }: { token: string }) {
 	}
 
 	return (
-		<div className="max-w-xl mx-auto py-10 px-4 space-y-8">
+		<div className="max-w-xl mx-auto py-8 px-4 space-y-6">
+			{/* Header */}
 			<div className="text-center space-y-2">
-				<div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-medium text-emerald-400 mb-2">
+				<div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-medium text-emerald-400 mb-1">
 					<Lock className="w-3.5 h-3.5" />
-					<span>视觉密语验证已就绪</span>
+					<span>视觉凭证校验就绪</span>
 				</div>
 				<h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-					验证并解锁密语
+					对准画面解锁密语
 				</h1>
-				<p className="text-slate-400 text-sm max-w-md mx-auto">
-					请上传与创建者参考画面一致的图片，比对通过后将揭示密语。
+				<p className="text-slate-400 text-xs sm:text-sm max-w-md mx-auto">
+					将摄像头对准创建者参考画面（或上传相册照片），几何一致性校验通过后即可查看密语。
 				</p>
 			</div>
 
 			{revealedSecret ? (
-				<div className="bg-slate-900 border border-emerald-500/40 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
-					<div className="flex items-center gap-3">
-						<div className="p-2.5 bg-emerald-500/20 rounded-xl text-emerald-400">
-							<Unlock className="w-6 h-6" />
-						</div>
-						<div>
-							<h3 className="text-lg font-bold text-emerald-400">
-								验证通过！密语已解锁
-							</h3>
-							<p className="text-xs text-slate-400">图像视觉特征匹配成功</p>
-						</div>
-					</div>
-					<div className="p-5 bg-slate-950 border border-slate-800 rounded-xl">
-						<div className="text-xs text-slate-500 mb-1 font-medium">
-							解密内容：
-						</div>
-						<p className="text-base font-medium text-slate-100 whitespace-pre-wrap select-all">
-							{revealedSecret}
-						</p>
-					</div>
-					<div className="pt-2 flex justify-end">
-						<a
-							href="/create"
-							className="text-xs text-indigo-400 hover:text-indigo-300 font-medium transition"
-						>
-							前往创建自己的视觉凭证 →
-						</a>
-					</div>
-				</div>
+				<SecretViewer secret={revealedSecret} />
 			) : (
-				<form
-					onSubmit={(e) => {
-						e.preventDefault()
-						verifyMutation.mutate()
-					}}
-					className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl backdrop-blur-sm"
-				>
-					<ImagePicker
-						label="上传验证图片"
-						previewUrl={previewUrl}
-						onFileSelect={handleFileSelect}
-						disabled={verifyMutation.isPending}
-					/>
-					{verificationFailed && (
-						<div className="p-4 bg-amber-950/40 border border-amber-500/30 rounded-xl text-amber-300 text-sm space-y-1">
-							<div className="font-semibold flex items-center gap-2">
-								<AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-								验证未通过
+				<div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl backdrop-blur-sm">
+					{/* 验证模式切换 */}
+					<div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+						<button
+							type="button"
+							onClick={() => {
+								setInputMode('camera')
+								setVerificationFailed(false)
+							}}
+							className={`flex-1 py-2 rounded-lg font-medium transition flex items-center justify-center gap-1.5 ${
+								inputMode === 'camera'
+									? 'bg-indigo-600 text-white shadow'
+									: 'text-slate-400 hover:text-slate-200'
+							}`}
+						>
+							<Camera className="w-3.5 h-3.5" />
+							<span>实时摄像头对准</span>
+						</button>
+						<button
+							type="button"
+							onClick={() => {
+								setInputMode('photo')
+								setVerificationFailed(false)
+							}}
+							className={`flex-1 py-2 rounded-lg font-medium transition flex items-center justify-center gap-1.5 ${
+								inputMode === 'photo'
+									? 'bg-indigo-600 text-white shadow'
+									: 'text-slate-400 hover:text-slate-200'
+							}`}
+						>
+							<FileImage className="w-3.5 h-3.5" />
+							<span>相册单张验证</span>
+						</button>
+					</div>
+
+					{/* Mode A: 实时摄像头对准识别 */}
+					{inputMode === 'camera' && (
+						<div className="space-y-4">
+							<div
+								className={`relative aspect-4/3 w-full bg-slate-950 rounded-2xl overflow-hidden border transition-all duration-300 ${
+									verificationFailed
+										? 'border-amber-500/60 shadow-[0_0_20px_rgba(245,158,11,0.15)]'
+										: isProcessingFrame
+											? 'border-indigo-500/60 shadow-[0_0_20px_rgba(99,102,241,0.2)]'
+											: 'border-slate-800'
+								}`}
+							>
+								<video
+									ref={videoRef}
+									playsInline
+									muted
+									className="w-full h-full object-cover"
+								/>
+
+								{/* 实时 ORB 关键点散点图 */}
+								<KeypointsCanvas
+									keypoints={liveKeypoints}
+									sourceWidth={liveCanvasSize.w}
+									sourceHeight={liveCanvasSize.h}
+								/>
+
+								{/* 摄像头多设备切换浮层 */}
+								{devices.length > 1 && (
+									<div className="absolute top-3 right-3 z-20">
+										<CameraSourceSelect
+											devices={devices}
+											activeDeviceId={activeDeviceId}
+											onSelectDevice={setActiveDeviceId}
+										/>
+									</div>
+								)}
+
+								{/* 状态徽标 */}
+								<div className="absolute bottom-3 left-3 bg-slate-900/85 backdrop-blur-md border border-slate-700/80 rounded-lg px-2.5 py-1 text-[11px] font-mono text-slate-300 flex items-center gap-1.5 pointer-events-none">
+									<span
+										className={`w-2 h-2 rounded-full ${
+											lastExtractedCount >= 20
+												? 'bg-emerald-400 animate-pulse'
+												: 'bg-amber-400'
+										}`}
+									/>
+									<span>
+										检测到特征点: {lastExtractedCount}
+										{lastExtractedCount < 20 ? ' (请靠近主体)' : ' (比对中)'}
+									</span>
+								</div>
+
+								{/* 摄像头加载或异常提示 */}
+								{!isStreaming && !cameraError && (
+									<div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-400 text-xs">
+										<Camera className="w-8 h-8 text-indigo-400 animate-pulse" />
+										<span>正在调起摄像头取景器...</span>
+									</div>
+								)}
+
+								{cameraError && (
+									<div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-2 bg-slate-950/90">
+										<AlertCircle className="w-8 h-8 text-amber-400" />
+										<p className="text-xs text-amber-300">{cameraError}</p>
+										<button
+											type="button"
+											onClick={() => setInputMode('photo')}
+											className="mt-2 text-xs text-indigo-400 underline"
+										>
+											切换为相册选取图片
+										</button>
+									</div>
+								)}
 							</div>
-							<p className="text-xs text-amber-400/80">
-								图片未能通过验证，请使用与参考视觉主体一致的图片重试。
-							</p>
+
+							{verificationFailed && (
+								<div className="p-3 bg-amber-950/40 border border-amber-500/30 rounded-xl text-amber-300 text-xs flex items-center gap-2">
+									<AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+									<span>
+										未识别到匹配的主体，请将镜头保持平稳、对准画面中心重试
+									</span>
+								</div>
+							)}
 						</div>
 					)}
-					{errorMessage && (
-						<div className="flex items-start gap-3 p-4 bg-red-950/50 border border-red-500/30 rounded-xl text-red-300 text-sm">
-							<AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-							<span>{errorMessage}</span>
-						</div>
+
+					{/* Mode B: 相册选择验证 */}
+					{inputMode === 'photo' && (
+						<form
+							onSubmit={(e) => {
+								e.preventDefault()
+								photoMutation.mutate()
+							}}
+							className="space-y-6"
+						>
+							<ImagePicker
+								label="上传待验证的画面图片"
+								previewUrl={previewUrl}
+								onFileSelect={handleFileSelect}
+								disabled={photoMutation.isPending}
+							/>
+
+							{verificationFailed && (
+								<div className="p-4 bg-amber-950/40 border border-amber-500/30 rounded-xl text-amber-300 text-xs space-y-1">
+									<div className="font-semibold flex items-center gap-2">
+										<AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+										<span>验证未通过</span>
+									</div>
+									<p className="text-amber-400/80">
+										图片特征未能通过 RANSAC
+										几何一致性校验，请确保画面主体完整清晰。
+									</p>
+								</div>
+							)}
+
+							{errorMessage && (
+								<div className="flex items-start gap-3 p-4 bg-red-950/50 border border-red-500/30 rounded-xl text-red-300 text-xs">
+									<AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+									<span>{errorMessage}</span>
+								</div>
+							)}
+
+							{photoMutation.isPending && (
+								<ProcessingState message={progressMsg || '正在验证...'} />
+							)}
+
+							<button
+								type="submit"
+								disabled={!file || photoMutation.isPending}
+								className="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-medium rounded-xl transition shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 text-sm"
+							>
+								<KeyRound className="w-4 h-4" />
+								校验特征并解锁密语
+							</button>
+						</form>
 					)}
-					{verifyMutation.isPending && (
-						<ProcessingState message={progressMsg || '正在验证...'} />
-					)}
-					<button
-						type="submit"
-						disabled={!file || verifyMutation.isPending}
-						className="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-medium rounded-xl transition shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 text-sm"
-					>
-						<KeyRound className="w-4 h-4" />
-						验证并读取密语
-					</button>
-				</form>
+				</div>
 			)}
 		</div>
 	)

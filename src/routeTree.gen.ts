@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CreateRouteImport } from './routes/create'
+import { Route as ReadRouteImport } from './routes/read'
 import { Route as RTokenRouteImport } from './routes/r.$token'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const CreateRoute = CreateRouteImport.update({
   path: '/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReadRoute = ReadRouteImport.update({
+  id: '/read',
+  path: '/read',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RTokenRoute = RTokenRouteImport.update({
   id: '/r/$token',
   path: '/r/$token',
@@ -32,30 +38,34 @@ const RTokenRoute = RTokenRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
+  '/read': typeof ReadRoute
   '/r/$token': typeof RTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
+  '/read': typeof ReadRoute
   '/r/$token': typeof RTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
+  '/read': typeof ReadRoute
   '/r/$token': typeof RTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/create' | '/r/$token'
+  fullPaths: '/' | '/create' | '/read' | '/r/$token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/create' | '/r/$token'
-  id: '__root__' | '/' | '/create' | '/r/$token'
+  to: '/' | '/create' | '/read' | '/r/$token'
+  id: '__root__' | '/' | '/create' | '/read' | '/r/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CreateRoute: typeof CreateRoute
+  ReadRoute: typeof ReadRoute
   RTokenRoute: typeof RTokenRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/read': {
+      id: '/read'
+      path: '/read'
+      fullPath: '/read'
+      preLoaderRoute: typeof ReadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/r/$token': {
       id: '/r/$token'
       path: '/r/$token'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CreateRoute: CreateRoute,
+  ReadRoute: ReadRoute,
   RTokenRoute: RTokenRoute,
 }
 export const routeTree = rootRouteImport

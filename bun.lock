@@ -10,6 +10,7 @@
         "@tanstack/react-start": "^1.168.49",
         "@tanstack/router-generator": "^1.167.33",
         "@tanstack/router-plugin": "^1.168.35",
+        "@techstark/opencv-js": "^5.0.0-release.1",
         "clsx": "^2.1.1",
         "drizzle-orm": "^0.45.2",
         "lucide-react": "^1.34.0",
@@ -372,6 +373,8 @@
     "@tanstack/store": ["@tanstack/store@0.9.3", "https://registry.npmmirror.com/@tanstack/store/-/store-0.9.3.tgz", {}, "sha512-8reSzl/qGWGGVKhBoxXPMWzATSbZLZFWhwBAFO9NAyp0TxzfBP0mIrGb8CP8KrQTmvzXlR/vFPPUrHTLBGyFyw=="],
 
     "@tanstack/virtual-file-routes": ["@tanstack/virtual-file-routes@1.162.0", "https://registry.npmmirror.com/@tanstack/virtual-file-routes/-/virtual-file-routes-1.162.0.tgz", {}, "sha512-uhOeFyxLcU41HzvrxsGpiWdcMbScY1EDgbZ5K7DVRMYInbLYWAC0EA/kx9wXAoSM8q82bUG2hRl8+EAjE6XAbA=="],
+
+    "@techstark/opencv-js": ["@techstark/opencv-js@5.0.0-release.1", "https://registry.npmmirror.com/@techstark/opencv-js/-/opencv-js-5.0.0-release.1.tgz", {}, "sha512-PIm+eB0MFtieXoNC2GRao0dv/02sehG+Nv2nSW5D6pQm6J/4WqvDHm0RyoqOmGYQm67jdGiaOdIeTShCY3PIUg=="],
 
     "@types/estree": ["@types/estree@1.0.9", "https://registry.npmmirror.com/@types/estree/-/estree-1.0.9.tgz", {}, "sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg=="],
 

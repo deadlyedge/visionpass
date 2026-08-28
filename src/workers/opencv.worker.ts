@@ -1,3 +1,4 @@
+import cv from '@techstark/opencv-js'
 import { CONSTANTS } from '../lib/constants'
 import { uint8ArrayToBase64 } from '../lib/feature-codec'
 import type { FeaturePayloadV1 } from '../lib/feature-schema'
@@ -6,11 +7,6 @@ import type {
 	WorkerRequest,
 	WorkerResponse,
 } from './worker-types'
-
-// OpenCV.js types in Web Worker global scope
-declare let cv: any
-declare let Module: any
-declare let importScripts: (...urls: string[]) => void
 
 let cvReadyPromise: Promise<any> | null = null
 
@@ -23,56 +19,59 @@ function postProgress(id: string, stage: string) {
 }
 
 /**
- * 加载 OpenCV.js WASM 运行时 (支持 jsdelivr 与 unpkg 容灾降级)
+ * 确保 OpenCV.js WASM 运行时已就绪
  */
-function initOpenCVWorker(): Promise<any> {
+function getReadyCvInstance(): Promise<any> {
 	if (cvReadyPromise) return cvReadyPromise
 
 	cvReadyPromise = new Promise((resolve, reject) => {
-		// 检查全局变量
-		if (cv?.Mat && cv.ORB) {
+		// 1. 如果 cv.Mat 已经存在，说明可以直接使用
+		if (
+			cv &&
+			typeof (cv as any).Mat === 'function' &&
+			typeof (cv as any).ORB === 'function'
+		) {
 			return resolve(cv)
 		}
 
-		let initialized = false
-
-		self.Module = {
-			onRuntimeInitialized: () => {
-				if (initialized) return
-				initialized = true
-				console.log('[OpenCV Worker] WASM Runtime initialized')
-				resolve(typeof cv !== 'undefined' ? cv : self.Module)
-			},
+		// 2. 如果 cv 是 Promise-like (Emscripten modularized)
+		if (cv && typeof (cv as any).then === 'function') {
+			;(cv as any)
+				.then((resolvedCv: any) => {
+					resolve(resolvedCv)
+				})
+				.catch((err: any) => {
+					reject(err)
+				})
+			return
 		}
 
-		try {
-			// 优先从 jsDelivr CDN 加载
-			importScripts(
-				'https://cdn.jsdelivr.net/npm/@techstark/opencv-js@5.0.0-release.1/dist/opencv.js',
-			)
-		} catch (err1) {
-			console.warn('[OpenCV Worker] jsdelivr failed, fallback to unpkg', err1)
-			try {
-				importScripts(
-					'https://unpkg.com/@techstark/opencv-js@5.0.0-release.1/dist/opencv.js',
-				)
-			} catch (_err2) {
-				return reject(new Error('无法在 Worker 中加载 OpenCV.js 脚本'))
+		// 3. 监听 onRuntimeInitialized
+		if (cv && typeof cv === 'object') {
+			const originalInit = (cv as any).onRuntimeInitialized
+			;(cv as any).onRuntimeInitialized = () => {
+				originalInit?.()
+				resolve(cv)
 			}
 		}
 
-		// 某些环境 Module.onRuntimeInitialized 已就绪
-		if (typeof cv !== 'undefined' && typeof cv.Mat === 'function') {
-			initialized = true
-			return resolve(cv)
-		}
-
-		// 设定 30 秒超时
-		setTimeout(() => {
-			if (!initialized) {
-				reject(new Error('OpenCV.js Worker 初始化超时'))
+		// 4. 设置安全轮询
+		const interval = setInterval(() => {
+			if (cv && typeof (cv as any).Mat === 'function') {
+				clearInterval(interval)
+				clearTimeout(timeout)
+				resolve(cv)
 			}
-		}, 30000)
+		}, 30)
+
+		const timeout = setTimeout(() => {
+			clearInterval(interval)
+			if (cv && typeof (cv as any).Mat === 'function') {
+				resolve(cv)
+			} else {
+				reject(new Error('OpenCV.js 初始化超时'))
+			}
+		}, 15000)
 	})
 
 	return cvReadyPromise
@@ -87,7 +86,7 @@ async function processImage(
 	options?: WorkerExtractOptions,
 ): Promise<FeaturePayloadV1> {
 	postProgress(id, '正在准备 OpenCV 计算核心...')
-	const cvEngine = await initOpenCVWorker()
+	const cvEngine = await getReadyCvInstance()
 
 	postProgress(id, '正在进行图像灰度转换与预处理...')
 
@@ -228,7 +227,7 @@ self.onmessage = async (e: MessageEvent<WorkerRequest>) => {
 
 	if (req.type === 'INIT') {
 		try {
-			await initOpenCVWorker()
+			await getReadyCvInstance()
 			postResp({ type: 'INIT_SUCCESS', id: req.id })
 		} catch (err: any) {
 			postResp({

@@ -6,7 +6,7 @@ import {
 	Outlet,
 	Scripts,
 } from '@tanstack/react-router'
-import { Shield, Sparkles } from 'lucide-react'
+import { KeyRound, Shield, Sparkles } from 'lucide-react'
 import appCss from '../styles/globals.css?url'
 
 export interface RouterContext {
@@ -55,6 +55,13 @@ function RootLayout() {
 							</Link>
 
 							<nav className="flex items-center gap-3">
+								<Link
+									to="/read"
+									className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
+								>
+									<KeyRound className="w-3.5 h-3.5 text-slate-400" />
+									读取/扫码
+								</Link>
 								<Link
 									to="/create"
 									className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-600/10 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-600/20 transition"

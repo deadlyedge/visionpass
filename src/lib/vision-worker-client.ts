@@ -21,7 +21,7 @@ class VisionWorkerClient {
 	/**
 	 * 获取或初始化 Web Worker 实例
 	 */
-	private getWorker(): Worker {
+	public getWorker(): Worker {
 		if (typeof window === 'undefined') {
 			throw new Error('Web Worker 仅可在浏览器环境中运行')
 		}

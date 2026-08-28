@@ -1,105 +1,209 @@
-import { Check, Copy, ExternalLink, RefreshCw } from 'lucide-react'
+import {
+	Check,
+	Copy,
+	Download,
+	ExternalLink,
+	Palette,
+	QrCode,
+	RotateCcw,
+} from 'lucide-react'
 import QRCode from 'qrcode'
-import type React from 'react'
 import { useEffect, useState } from 'react'
+import { PosterGenerator } from './poster/poster-generator'
 
-interface QrResultProps {
+export interface QrResultProps {
 	readUrl: string
+	displayPasscode?: string
+	referenceImageUrl?: string | null
 	onReset: () => void
 }
 
-export const QrResult: React.FC<QrResultProps> = ({ readUrl, onReset }) => {
+export function QrResult({
+	readUrl,
+	displayPasscode,
+	referenceImageUrl,
+	onReset,
+}: QrResultProps) {
 	const [qrDataUrl, setQrDataUrl] = useState<string>('')
 	const [copied, setCopied] = useState(false)
+	const [showPosterMode, setShowPosterMode] = useState(false)
 
+	// 二维码仅包含口令 (displayPasscode)，抗封阻、去中心化且矩阵稀疏易扫描
 	useEffect(() => {
-		QRCode.toDataURL(readUrl, {
-			width: 280,
+		const qrContent = displayPasscode || readUrl
+		QRCode.toDataURL(qrContent, {
+			width: 512,
 			margin: 2,
 			color: {
-				dark: '#020617',
+				dark: '#0f172a',
 				light: '#ffffff',
 			},
 		})
 			.then((url) => setQrDataUrl(url))
 			.catch((err) => console.error('生成二维码失败:', err))
-	}, [readUrl])
+	}, [displayPasscode, readUrl])
 
-	const handleCopy = async () => {
+	const handleCopyPasscode = async () => {
+		if (!displayPasscode) return
 		try {
-			await navigator.clipboard.writeText(readUrl)
+			await navigator.clipboard.writeText(displayPasscode)
 			setCopied(true)
 			setTimeout(() => setCopied(false), 2000)
-		} catch (e) {
-			console.error('复制失败', e)
+		} catch (err) {
+			console.error('复制口令失败:', err)
 		}
 	}
 
+	const handleDownloadQr = () => {
+		if (!qrDataUrl) return
+		const a = document.createElement('a')
+		a.href = qrDataUrl
+		a.download = `VisionPass-${displayPasscode || Date.now()}.png`
+		a.click()
+	}
+
 	return (
-		<div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col items-center text-center space-y-6 shadow-xl">
-			<div className="space-y-1">
-				<h3 className="text-xl font-bold text-emerald-400">
-					视觉凭证创建成功！
-				</h3>
-				<p className="text-sm text-slate-400">
-					扫描二维码或通过读取链接打开，上传原图即可读取密语。
-				</p>
-			</div>
+		<div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl backdrop-blur-sm">
+			{/* 模式切换 Tab */}
+			{referenceImageUrl && (
+				<div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+					<button
+						type="button"
+						onClick={() => setShowPosterMode(false)}
+						className={`flex-1 py-2 rounded-lg font-medium transition flex items-center justify-center gap-1.5 ${
+							!showPosterMode
+								? 'bg-indigo-600 text-white shadow'
+								: 'text-slate-400 hover:text-slate-200'
+						}`}
+					>
+						<QrCode className="w-3.5 h-3.5" />
+						<span>独立凭证二维码</span>
+					</button>
+					<button
+						type="button"
+						onClick={() => setShowPosterMode(true)}
+						className={`flex-1 py-2 rounded-lg font-medium transition flex items-center justify-center gap-1.5 ${
+							showPosterMode
+								? 'bg-indigo-600 text-white shadow'
+								: 'text-slate-400 hover:text-slate-200'
+						}`}
+					>
+						<Palette className="w-3.5 h-3.5" />
+						<span>生成带 QR 分享海报</span>
+					</button>
+				</div>
+			)}
 
-			<div className="p-4 bg-white rounded-xl shadow-inner inline-block">
-				{qrDataUrl ? (
-					<img
-						src={qrDataUrl}
-						alt="Visual Secret QR Code"
-						className="w-56 h-56 rounded"
-					/>
-				) : (
-					<div className="w-56 h-56 flex items-center justify-center text-slate-400 text-sm">
-						正在生成二维码...
+			{showPosterMode && referenceImageUrl ? (
+				<PosterGenerator
+					referenceImageUrl={referenceImageUrl}
+					readUrl={readUrl}
+					displayPasscode={displayPasscode}
+				/>
+			) : (
+				<>
+					<div className="text-center space-y-1">
+						<div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-2">
+							<span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+							凭证已激活 · 密语已安全封存
+						</div>
+						<h2 className="text-xl font-bold text-slate-100">
+							视觉凭证创建成功
+						</h2>
+						<p className="text-xs text-slate-400 max-w-sm mx-auto">
+							二维码内仅包含专属口令（去中心化设计），使用扫码器对准即可快速载入。
+						</p>
 					</div>
-				)}
-			</div>
 
-			<div className="w-full space-y-3">
-				<div className="flex items-center gap-2 p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-xs font-mono text-slate-300 break-all">
-					<span className="flex-1 select-all">{readUrl}</span>
-					<button
-						onClick={handleCopy}
-						className="p-1.5 hover:bg-slate-800 rounded text-slate-300 transition-colors shrink-0 flex items-center gap-1"
-						title="复制链接"
-					>
-						{copied ? (
-							<>
-								<Check className="w-4 h-4 text-emerald-400" />
-								<span className="text-emerald-400 font-sans">已复制</span>
-							</>
+					{/* QR 码展示 (1:1 纯口令正方形二维码) */}
+					<div className="flex flex-col items-center justify-center p-6 bg-white rounded-2xl shadow-inner max-w-xs mx-auto">
+						{qrDataUrl ? (
+							<img
+								src={qrDataUrl}
+								alt="凭证二维码"
+								className="w-56 h-56 object-contain rounded-lg"
+							/>
 						) : (
-							<>
-								<Copy className="w-4 h-4" />
-								<span className="font-sans">复制</span>
-							</>
+							<div className="w-56 h-56 flex items-center justify-center text-slate-400">
+								<QrCode className="w-8 h-8 animate-pulse text-indigo-500" />
+							</div>
 						)}
-					</button>
-				</div>
+						{displayPasscode && (
+							<div className="mt-3 text-xs font-mono font-bold tracking-widest text-slate-800 bg-slate-100 px-3 py-1 rounded-md border border-slate-300 select-all">
+								{displayPasscode}
+							</div>
+						)}
+					</div>
 
-				<div className="flex gap-3">
-					<a
-						href={readUrl}
-						target="_blank"
-						rel="noopener noreferrer"
-						className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors shadow-lg shadow-indigo-600/20"
-					>
-						<ExternalLink className="w-4 h-4" />
-						打开读取页
-					</a>
-					<button
-						onClick={onReset}
-						className="flex items-center justify-center gap-2 py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium rounded-lg transition-colors border border-slate-700"
-					>
-						<RefreshCw className="w-4 h-4" />
-						创建新凭证
-					</button>
-				</div>
+					{/* 口令与直达链接卡片 */}
+					<div className="space-y-2">
+						<div className="flex items-center justify-between text-xs text-slate-400">
+							<label htmlFor="passcode-display" className="font-medium">
+								专属展示口令
+							</label>
+							<span className="text-slate-500">可直接复制发送给好友输入</span>
+						</div>
+						<div className="flex items-center gap-2">
+							<input
+								id="passcode-display"
+								type="text"
+								readOnly
+								value={displayPasscode || readUrl}
+								className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 font-mono tracking-wider select-all focus:outline-none"
+							/>
+							<button
+								type="button"
+								onClick={handleCopyPasscode}
+								className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-medium transition flex items-center gap-1.5 shrink-0"
+							>
+								{copied ? (
+									<>
+										<Check className="w-3.5 h-3.5 text-emerald-400" />
+										<span className="text-emerald-400">已复制</span>
+									</>
+								) : (
+									<>
+										<Copy className="w-3.5 h-3.5 text-slate-400" />
+										<span>复制代码</span>
+									</>
+								)}
+							</button>
+						</div>
+					</div>
+
+					{/* 快捷操作区 */}
+					<div className="grid grid-cols-2 gap-3 pt-2">
+						<button
+							type="button"
+							onClick={handleDownloadQr}
+							className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition flex items-center justify-center gap-2 border border-slate-700"
+						>
+							<Download className="w-3.5 h-3.5 text-indigo-400" />
+							保存二维码图片
+						</button>
+						<a
+							href={readUrl}
+							target="_blank"
+							rel="noreferrer"
+							className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition flex items-center justify-center gap-2 border border-slate-700"
+						>
+							<ExternalLink className="w-3.5 h-3.5 text-indigo-400" />
+							立即前往验证
+						</a>
+					</div>
+				</>
+			)}
+
+			{/* 重置返回按钮 */}
+			<div className="pt-4 border-t border-slate-800/80">
+				<button
+					type="button"
+					onClick={onReset}
+					className="w-full py-2.5 text-xs text-slate-400 hover:text-slate-200 transition flex items-center justify-center gap-1.5"
+				>
+					<RotateCcw className="w-3.5 h-3.5" />
+					创建下一个视觉凭证
+				</button>
 			</div>
 		</div>
 	)

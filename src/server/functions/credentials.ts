@@ -1,6 +1,6 @@
-import { randomBytes } from 'node:crypto'
 import { createServerFn } from '@tanstack/react-start'
-import { eq } from 'drizzle-orm'
+import { and, eq, or } from 'drizzle-orm'
+import { CONSTANTS } from '@/lib/constants'
 import { base64ToUint8Array } from '@/lib/feature-codec'
 import {
 	CreateCredentialRequestSchema,
@@ -9,9 +9,12 @@ import {
 	type OrbFeaturePayloadV1,
 	VerifyRequestSchema,
 } from '@/lib/feature-schema'
+import { decryptSecret, encryptSecret } from '../crypto/secrets'
+import { generateTokenPair, hashToken } from '../crypto/tokens'
 import { db } from '../db/client'
-import { credentials } from '../db/schema'
+import { credentials, verificationAttempts } from '../db/schema'
 import { matchOrbBasic } from '../matcher/orb-basic'
+import { serverLogger } from '../utils/logger'
 
 function validateFeaturePayloadStrict(feature: OrbFeaturePayloadV1) {
 	const parsed = OrbFeaturePayloadSchema.parse(feature)
@@ -39,6 +42,7 @@ function validateFeaturePayloadStrict(feature: OrbFeaturePayloadV1) {
 
 /**
  * 1. 创建凭证 Server Function (原生 createServerFn)
+ * 生成双 Token 与密语加密存储
  */
 export const createCredentialFn = createServerFn({ method: 'POST' })
 	.validator((data: unknown) => CreateCredentialRequestSchema.parse(data))
@@ -50,25 +54,54 @@ export const createCredentialFn = createServerFn({ method: 'POST' })
 		const { secret, feature } = data
 		validateFeaturePayloadStrict(feature)
 
-		let token = ''
+		// 1. 生成双 Token 组合与哈希
+		const {
+			publicToken,
+			displayPasscode,
+			publicTokenHash,
+			passcodeHash,
+			passcodeHint,
+		} = generateTokenPair()
+
+		// 2. AES-256-GCM 加密密语
+		const encrypted = encryptSecret(secret)
+
+		const now = new Date()
+		const expiresAt = new Date(
+			now.getTime() + CONSTANTS.CRYPTO.DEFAULT_EXPIRES_DAYS * 24 * 3600 * 1000,
+		)
+
 		let inserted = false
 		let attempts = 0
 
 		while (!inserted && attempts < 5) {
 			attempts++
-			token = randomBytes(16).toString('base64url')
-
 			try {
 				await db.insert(credentials).values({
-					token,
-					secret,
+					publicTokenHash,
+					passcodeHash,
+					passcodeHint,
+					status: 'active',
+					secretCiphertext: encrypted.ciphertext,
+					secretIv: encrypted.iv,
+					secretAuthTag: encrypted.authTag,
+					secretVersion: encrypted.version,
 					featurePayload: feature,
+					matcherId: 'orb-basic-v1',
+					expiresAt,
+					activatedAt: now,
 				})
 				inserted = true
+				serverLogger.info('createCredential', '凭证创建并激活成功', {
+					publicTokenHash: publicTokenHash.slice(0, 8),
+					passcodeHint,
+				})
 			} catch (dbErr: any) {
 				if (dbErr.code === '23505' || dbErr.message?.includes('unique')) {
+					serverLogger.warn('createCredential', 'Token 哈希冲突，重试生成')
 					continue
 				}
+				serverLogger.error('createCredential', '凭证入库异常', dbErr)
 				throw dbErr
 			}
 		}
@@ -78,16 +111,18 @@ export const createCredentialFn = createServerFn({ method: 'POST' })
 		}
 
 		const appOrigin = process.env.APP_ORIGIN || 'http://localhost:3000'
-		const readUrl = `${appOrigin.replace(/\/+$/, '')}/r/${token}`
+		const readUrl = `${appOrigin.replace(/\/+$/, '')}/r/${publicToken}`
 
 		return {
-			token,
+			token: publicToken,
+			displayPasscode,
 			readUrl,
 		}
 	})
 
 /**
  * 2. 查询凭证状态 Server Function (原生 createServerFn)
+ * 支持通过 publicToken 或 displayPasscode 哈希查询凭证有效性
  */
 export const getCredentialMetaFn = createServerFn({ method: 'GET' })
 	.validator((data: { token: string }) => data)
@@ -101,10 +136,20 @@ export const getCredentialMetaFn = createServerFn({ method: 'GET' })
 			return { exists: false }
 		}
 
+		const inputHash = hashToken(token)
+
 		const result = await db
-			.select({ id: credentials.id })
+			.select({ id: credentials.id, status: credentials.status })
 			.from(credentials)
-			.where(eq(credentials.token, token))
+			.where(
+				and(
+					or(
+						eq(credentials.publicTokenHash, inputHash),
+						eq(credentials.passcodeHash, inputHash),
+					),
+					eq(credentials.status, 'active'),
+				),
+			)
 			.limit(1)
 
 		return { exists: result.length > 0 }
@@ -112,6 +157,7 @@ export const getCredentialMetaFn = createServerFn({ method: 'GET' })
 
 /**
  * 3. 验证比对凭证 Server Function (原生 createServerFn)
+ * 支持双 Token 哈希索引、ORB 纯位运算比对、AES-256-GCM 解密与审计日志
  */
 export const verifyCredentialFn = createServerFn({ method: 'POST' })
 	.validator((data: unknown) => VerifyRequestSchema.parse(data))
@@ -123,28 +169,80 @@ export const verifyCredentialFn = createServerFn({ method: 'POST' })
 		const { token, feature: queryFeature } = data
 		validateFeaturePayloadStrict(queryFeature)
 
+		const inputHash = hashToken(token)
+
 		const rows = await db
 			.select({
-				secret: credentials.secret,
+				id: credentials.id,
+				status: credentials.status,
+				secretCiphertext: credentials.secretCiphertext,
+				secretIv: credentials.secretIv,
+				secretAuthTag: credentials.secretAuthTag,
 				featurePayload: credentials.featurePayload,
 			})
 			.from(credentials)
-			.where(eq(credentials.token, token))
+			.where(
+				and(
+					or(
+						eq(credentials.publicTokenHash, inputHash),
+						eq(credentials.passcodeHash, inputHash),
+					),
+					eq(credentials.status, 'active'),
+				),
+			)
 			.limit(1)
 
 		if (rows.length === 0) {
+			serverLogger.warn('verifyCredential', '未找到有效凭证', {
+				inputHash: inputHash.slice(0, 8),
+			})
 			return { matched: false as const }
 		}
 
-		const { secret, featurePayload } = rows[0]
-		const referenceFeature = featurePayload as OrbFeaturePayloadV1
+		const row = rows[0]
+		if (
+			!row?.secretCiphertext ||
+			!row.secretIv ||
+			!row.secretAuthTag ||
+			!row.featurePayload
+		) {
+			return { matched: false as const }
+		}
 
+		const referenceFeature = row.featurePayload as OrbFeaturePayloadV1
 		const matchResult = matchOrbBasic(queryFeature, referenceFeature)
 
+		serverLogger.info('verifyCredential', '特征比对完成', {
+			credentialId: row.id,
+			matched: matchResult.matched,
+			goodMatchCount: matchResult.goodMatchCount,
+		})
+
+		// 记录验证审计日志
+		try {
+			await db.insert(verificationAttempts).values({
+				credentialId: row.id,
+				result: matchResult.matched ? 'matched' : 'failed',
+				matcherId: 'orb-basic-v1',
+				goodMatchCount: matchResult.goodMatchCount,
+			})
+		} catch (auditErr) {
+			serverLogger.warn('verifyCredential', '记录审计日志失败', {
+				error: auditErr,
+			})
+		}
+
 		if (matchResult.matched) {
+			// 解密密语
+			const decryptedSecret = decryptSecret({
+				ciphertext: row.secretCiphertext,
+				iv: row.secretIv,
+				authTag: row.secretAuthTag,
+			})
+
 			return {
 				matched: true as const,
-				secret,
+				secret: decryptedSecret,
 			}
 		}
 

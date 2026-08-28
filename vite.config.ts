@@ -14,8 +14,27 @@ export default defineConfig({
 			'@': import.meta.dirname ? `${import.meta.dirname}/src` : './src',
 		},
 	},
-	plugins: [nitro(), tailwindcss(), tanstackStart(), viteReact()],
+	plugins: [
+		nitro({
+			// Nitro 生产环境打包参数与预设
+			preset: 'node-server',
+			routeRules: {
+				'/**': {
+					headers: {
+						'X-Content-Type-Options': 'nosniff',
+						'X-Frame-Options': 'DENY',
+						'X-XSS-Protection': '1; mode=block',
+						'Referrer-Policy': 'strict-origin-when-cross-origin',
+					},
+				},
+			},
+		}),
+		tailwindcss(),
+		tanstackStart(),
+		viteReact(),
+	],
 	build: {
+		chunkSizeWarningLimit: 2000,
 		rollupOptions: {
 			onwarn(warning, warn) {
 				if (

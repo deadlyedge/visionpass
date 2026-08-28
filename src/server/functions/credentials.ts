@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { and, eq, or } from 'drizzle-orm'
+import { getRequestHeader } from 'nitro/h3'
 import { CONSTANTS } from '@/lib/constants'
 import { base64ToUint8Array } from '@/lib/feature-codec'
 import {
@@ -15,7 +16,24 @@ import { generateTokenPair, hashToken } from '../crypto/tokens'
 import { db } from '../db/client'
 import { credentials, verificationAttempts } from '../db/schema'
 import { orbHammingRansacMatcherV1 } from '../matcher/orb-hamming-ransac-v1'
+import { checkRateLimit, hashClientIp } from '../security/rate-limit'
 import { serverLogger } from '../utils/logger'
+
+function getClientIpFromRequest(): string {
+	try {
+		// 优先从 proxy 标头获取
+		const xForwardedFor = getRequestHeader({} as any, 'x-forwarded-for')
+		if (xForwardedFor) {
+			const firstIp = String(xForwardedFor).split(',')[0]?.trim()
+			if (firstIp) return firstIp
+		}
+		const xRealIp = getRequestHeader({} as any, 'x-real-ip')
+		if (xRealIp) return String(xRealIp).trim()
+	} catch (_e) {
+		// 忽略在非 HTTP 请求或测试环境下的异常
+	}
+	return '127.0.0.1'
+}
 
 function validateFeaturePayloadStrict(rawFeature: OrbFeaturePayloadV1) {
 	OrbFeaturePayloadSchema.parse(rawFeature)
@@ -44,7 +62,7 @@ function validateFeaturePayloadStrict(rawFeature: OrbFeaturePayloadV1) {
 
 /**
  * 1. 创建凭证 Server Function (原生 createServerFn)
- * 生成双 Token 与密语加密存储
+ * 集成 IP 限流、请求防护、双 Token 与密语加密存储
  */
 export const createCredentialFn = createServerFn({ method: 'POST' })
 	.validator((data: unknown) => CreateCredentialRequestSchema.parse(data))
@@ -53,10 +71,21 @@ export const createCredentialFn = createServerFn({ method: 'POST' })
 			throw new Error('数据库连接未配置：环境变量 DATABASE_URL 缺失。')
 		}
 
+		// 1. IP 滑动窗口限流
+		const clientIp = getClientIpFromRequest()
+		const ipHash = hashClientIp(clientIp)
+		const rateLimit = checkRateLimit(ipHash, 'create')
+		if (!rateLimit.success) {
+			serverLogger.warn('createCredential', '触发创建凭证限流', {
+				ipHash: ipHash.slice(0, 8),
+			})
+			throw new Error('请求过于频繁，请稍后再试')
+		}
+
 		const { secret, feature } = data
 		validateFeaturePayloadStrict(feature)
 
-		// 1. 生成双 Token 组合与哈希
+		// 2. 生成双 Token 组合与哈希
 		const {
 			publicToken,
 			displayPasscode,
@@ -65,7 +94,7 @@ export const createCredentialFn = createServerFn({ method: 'POST' })
 			passcodeHint,
 		} = generateTokenPair()
 
-		// 2. AES-256-GCM 加密密语
+		// 3. AES-256-GCM 加密密语
 		const encrypted = encryptSecret(secret)
 
 		const now = new Date()
@@ -133,6 +162,13 @@ export const getCredentialMetaFn = createServerFn({ method: 'GET' })
 			throw new Error('数据库连接未配置：环境变量 DATABASE_URL 缺失。')
 		}
 
+		const clientIp = getClientIpFromRequest()
+		const ipHash = hashClientIp(clientIp)
+		const rateLimit = checkRateLimit(ipHash, 'meta')
+		if (!rateLimit.success) {
+			return { exists: false }
+		}
+
 		const { token } = data
 		if (!token) {
 			return { exists: false }
@@ -159,13 +195,32 @@ export const getCredentialMetaFn = createServerFn({ method: 'GET' })
 
 /**
  * 3. 验证比对凭证 Server Function (原生 createServerFn)
- * 支持双 Token 哈希索引、ORB RANSAC 几何内点比对、AES-256-GCM 解密与审计日志
+ * 支持 IP 限流、双 Token 哈希索引、ORB RANSAC 几何内点比对、AES-256-GCM 解密与详细审计日志
  */
 export const verifyCredentialFn = createServerFn({ method: 'POST' })
 	.validator((data: unknown) => VerifyRequestSchema.parse(data))
 	.handler(async ({ data }) => {
 		if (!process.env.DATABASE_URL) {
 			throw new Error('数据库连接未配置：环境变量 DATABASE_URL 缺失。')
+		}
+
+		const clientIp = getClientIpFromRequest()
+		const ipHash = hashClientIp(clientIp)
+		const rateLimit = checkRateLimit(ipHash, 'verify')
+
+		if (!rateLimit.success) {
+			serverLogger.warn('verifyCredential', '触发验证限流拦截', {
+				ipHash: ipHash.slice(0, 8),
+			})
+			// 记录限流审计
+			try {
+				await db.insert(verificationAttempts).values({
+					result: 'rate_limited',
+					matcherId: orbHammingRansacMatcherV1.id,
+					ipHash,
+				})
+			} catch (_e) {}
+			return { matched: false as const }
 		}
 
 		const { token, feature: queryFeature } = data
@@ -198,6 +253,13 @@ export const verifyCredentialFn = createServerFn({ method: 'POST' })
 			serverLogger.warn('verifyCredential', '未找到有效凭证', {
 				inputHash: inputHash.slice(0, 8),
 			})
+			try {
+				await db.insert(verificationAttempts).values({
+					result: 'invalid_token',
+					matcherId: orbHammingRansacMatcherV1.id,
+					ipHash,
+				})
+			} catch (_e) {}
 			return { matched: false as const }
 		}
 
@@ -227,7 +289,7 @@ export const verifyCredentialFn = createServerFn({ method: 'POST' })
 			reason: matchResult.reason,
 		})
 
-		// 记录验证审计日志
+		// 记录验证审计日志 (包含分值、内点数、IP 哈希)
 		try {
 			await db.insert(verificationAttempts).values({
 				credentialId: row.id,
@@ -237,6 +299,7 @@ export const verifyCredentialFn = createServerFn({ method: 'POST' })
 				goodMatchCount: matchResult.goodMatchCount,
 				inlierCount: matchResult.inlierCount,
 				inlierRatio: String(matchResult.inlierRatio),
+				ipHash,
 			})
 		} catch (auditErr) {
 			serverLogger.warn('verifyCredential', '记录审计日志失败', {

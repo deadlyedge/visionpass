@@ -1,29 +1,86 @@
-# VisionPass - 视觉密语 (Visual Passcode)
+# VisionPass - 视觉密语 (Visual Passcode) v5.1
 
-VisionPass 是一个基于图像特征识别的端到端视觉密语系统（MVP）。用户可以通过上传一张参考图片来封存一段密语，接收方只有提供相同或高度相似画面的图片，才能通过特征比对解锁并查看密语。
+VisionPass 是一个基于端侧视觉特征提取与服务端几何一致性检验的现代化全栈视觉密语系统。用户可通过一张参考图片将机密文本安全封存，接收方只有通过相机对准相同或高度相似的物理画面（或上传相册画面），才能通过 ORB 特征与 RANSAC 单应性矩阵几何内点校验解锁并查看密语。
 
-系统基于 **TanStack Start (Nitro + Vite)** 全栈框架构建，采用 **Server Functions (`createServerFn`)** 实现端到端类型安全的零 API RPC 通信。
+系统基于 **TanStack Start (React 19 + Nitro + Vite + Bun)** 现代全栈体系构建，前后端通过类型安全的 **Server Functions (`createServerFn`)** 进行同构通信，遵循**零原图上传**、**双 Token 去中心化解耦**与 **AES-256-GCM AEAD 服务端受控加密**等核心工业级安全原则。
 
 ---
 
-## 🌟 核心特性
+## 🌟 核心特性与架构亮点
 
-- **隐私优先（零原图上传）**：图片仅在浏览器主线程进行灰度化与 ORB 描述子提取，原始图片永远不会上传到服务器或存储在数据库中。
-- **纯 Server Functions 通信**：无需独立 `api/` 路由与手动 `fetch`，全量使用 TanStack Start `createServerFn` 进行类型安全的前后端 RPC 调用。
-- **纯位运算比对**：服务端无复杂外部依赖，通过高性能 Hamming 距离算法（Brian Kernighan 快速位运算）在 Node.js 中高效比对。
-- **全栈同构与代码共享**：Zod 数据 Schema、类型与校验工具在前端与后端无缝共享，自动享受 Tree-shaking 保护。
-- **动态二维码生成**：凭证创建后本地自动生成带有安全 Token 的访问链接和二维码。
+1. **隐私优先（零原图上云）**：
+   - 所有图片解码、缩放（最长边 640px）、灰度转换与 ORB 特征提取均在客户端独立 **Web Worker** 线程中完成，原始图片绝不上传或存储到服务端/数据库。
+2. **纯 TypeScript 工业级几何匹配引擎**：
+   - 服务端零 C++/Python 依赖，纯 TypeScript 高性能实现 **Hamming KNN 检索 + Lowe's Ratio Test + DLT/高斯消元法 + RANSAC 2D 单应性矩阵（Homography）几何内点校验**，单次比对耗时 $\le 5\text{ms}$，有效拦截相似物体错配与纹理欺骗。
+3. **双 Token 安全模型与 AEAD 密语加密**：
+   - 采用 `publicToken`（CSPRNG 16 字节）+ `displayPasscode`（Base32 易读口令），数据库仅存储 `HMAC-SHA-256(TOKEN_PEPPER, token)` 单向哈希，杜绝明文凭证泄露；
+   - 密语采用标准 **AES-256-GCM** 加密存储，仅在几何特征比对达标后由服务端实时解密放行。
+4. **去中心化与抗封阻海报分享生态**：
+   - 二维码仅编码纯口令（`displayPasscode`），与部署域名彻底解耦，生成的二维码矩阵稀疏、易扫描、抗封锁；
+   - 支持拖拽式带 QR 覆盖层的分享海报生成与离线 Canvas 全分辨率 PNG 导出。
+5. **沉浸式连续摄像头流式体验（Continuous Camera Session）**：
+   - 结合原生 `BarcodeDetector` 与高性能 `jsQR` 双引擎实现毫秒级秒扫；
+   - 扫码命中口令后，摄像头视频流保持连续运行，无缝切入实时画面 ORB 星空散点微光渲染（`KeypointsCanvas`）与自动抽帧比对，彻底告别黑屏卡顿。
+6. **生产级防护与全链路审计**：
+   - 集成 IP 级滑动窗口限流、请求数据包尺寸拦截与 PostgreSQL 结构化验证审计日志（`verification_attempts`）；
+   - 注入 `X-Content-Type-Options`、`X-Frame-Options` 等完备的安全响应头。
 
 ---
 
 ## 🛠️ 技术栈
 
 - **全栈框架**：[TanStack Start](https://tanstack.com/start) (React 19, TypeScript, Bun, Vite, Nitro)
-- **路由与数据请求**：TanStack Router, TanStack Query
-- **图像算法**：OpenCV.js (浏览器端 ORB 关键点与描述子提取，多 CDN 自动容灾)
+- **路由与状态管理**：TanStack Router (类型安全路由树), TanStack Query
+- **端侧图像计算**：OpenCV.js WASM (Web Worker 独立线程隔离, 零阻塞 60fps 交互)
+- **QR 编码与解码**：`qrcode` (海报/独立码生成), `jsQR` (跨平台通用极速扫码识别)
+- **密码学与安全**：Node.js Crypto (`aes-256-gcm`, `hmac-sha256`), 内存滑动窗口限流
 - **数据库 & ORM**：PostgreSQL (Neon / Supabase / 自建), Drizzle ORM
-- **样式与 UI**：Tailwind CSS v4, Lucide React
-- **代码规范**：Biome
+- **样式与组件**：Tailwind CSS v4, Lucide React
+- **代码规范 & 质量**：Biome
+
+---
+
+## 📁 目录结构
+
+```text
+visionpass/
+├── src/
+│   ├── routes/                   # TanStack Router 路由树
+│   │   ├── __root.tsx            # 全局根布局 (Header, Navigation)
+│   │   ├── index.tsx             # 首页引导
+│   │   ├── create.tsx            # /create 创建凭证与海报分享
+│   │   ├── read.tsx              # /read 一体化连续流式扫码/口令检索验证页
+│   │   └── r.$token.tsx          # /r/:token 直达验证与解密页
+│   ├── components/               # 交互组件集
+│   │   ├── poster/               # 拖拽式海报生成器 (PosterGenerator, QrOverlayDraggable)
+│   │   ├── scanner/              # 摄像头扫码与多设备切换器 (QrScannerView, CameraSourceSelect)
+│   │   ├── viewer/               # 密语展示器与 ORB 星空散点渲染 (SecretViewer, KeypointsCanvas)
+│   │   ├── image-picker.tsx      # 本地相册与拍照选择器
+│   │   ├── qr-result.tsx         # 凭证生成结果与模式切换
+│   │   └── processing-state.tsx  # 状态加载组件
+│   ├── hooks/                    # 核心 React Hooks
+│   │   ├── use-camera-stream.ts  # 现代化摄像头 MediaStream 状态与设备管理
+│   │   ├── use-barcode-scanner.ts# 原生 BarcodeDetector + jsQR 双引擎扫码 Hook
+│   │   └── use-live-orb-matcher.ts# 视频流 800ms 抽帧、Worker 提取与单飞防并发比对 Hook
+│   ├── workers/                  # Web Worker 图像特征提取流水线
+│   │   ├── opencv.worker.ts      # OpenCV.js WASM 图像缩放、灰度化、ORB 特征提取
+│   │   └── worker-types.ts       # Worker 消息协议定义
+│   ├── server/                   # 服务端独占逻辑 (Nitro 统一打包)
+│   │   ├── crypto/               # CSPRNG Token 生成、HMAC 哈希与 AES-256-GCM 加解密
+│   │   ├── db/                   # Drizzle ORM 配置与 Schema (PostgreSQL)
+│   │   ├── matcher/              # 纯 TypeScript 几何匹配引擎 (KNN, Lowe Ratio, RANSAC)
+│   │   ├── security/             # IP 滑动窗口限流与安全防护
+│   │   ├── functions/            # TanStack Start createServerFn (create, meta, verify)
+│   │   └── utils/                # 结构化服务端日志输出
+│   └── lib/                      # 前后端共享工具库
+│       ├── constants.ts          # 全局配置常量 (Token 长度、匹配阈值、限流参数)
+│       ├── feature-codec.ts      # 二进制描述子 Base64URL 编码解码
+│       ├── feature-schema.ts     # Zod 凭证与特征协议 (FeaturePayloadV1)
+│       └── vision-worker-client.ts# 浏览器端 Web Worker 通信客户端
+├── tests/                        # 单元测试集 (Crypto, Matcher, Security)
+├── drizzle/                      # 数据库迁移 SQL 脚本
+└── vite.config.ts                # Vite / Nitro / Tailwind 全栈构建配置
+```
 
 ---
 
@@ -31,7 +88,7 @@ VisionPass 是一个基于图像特征识别的端到端视觉密语系统（MVP
 
 ### 1. 准备工作
 
-确保已安装 [Bun](https://bun.sh/)（推荐）或 Node.js (>= 20)。
+确保已安装 [Bun](https://bun.sh/)（推荐，`>= 1.1`）或 Node.js (`>= 20`)。
 
 ```bash
 # 克隆仓库并进入目录
@@ -44,58 +101,57 @@ bun install
 
 ### 2. 配置环境变量
 
-复制 `.env.example` 为 `.env` 并填写 PostgreSQL 数据库连接串：
+复制 `.env.example` 为 `.env` 并填写配置：
 
 ```env
+# PostgreSQL 数据库连接串 (支持 Neon, Supabase, Vercel Postgres 等)
 DATABASE_URL=postgresql://postgres:password@localhost:5432/visionpass
+
+# 应用访问域名
 APP_ORIGIN=http://localhost:3000
+
+# (可选) 服务端 Token 加盐密钥与密语主加密 Key (开发环境提供安全 fallback)
+# TOKEN_PEPPER=your_custom_pepper_secret
+# SECRET_ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
 ```
 
-### 3. 初始化数据库
+### 3. 初始化数据库表结构
 
-使用 Drizzle 将数据表结构同步到本地或远程数据库：
+使用 Drizzle 将数据表结构同步到 PostgreSQL 数据库：
 
 ```bash
 bun run db:push
 ```
 
-### 4. 启动全栈开发服务
+### 4. 运行测试套件
+
+```bash
+bun test
+```
+
+### 5. 启动全栈开发服务
 
 ```bash
 bun dev
 ```
 
-本地服务启动后访问 `http://localhost:3000`。TanStack Start 会同时提供前端 SPA 与 Server Functions 的全栈 HMR 热更新支持。
+本地服务启动后访问 `http://localhost:3000`。TanStack Start 会提供前端 SPA 与 Server Functions 的实时全栈 HMR 热更新。
 
 ---
 
-## ☁️ Vercel 部署指南
+## ☁️ 生产部署指南 (Vercel / Node.js)
 
-本项目原生支持一键部署到 Vercel：
+本项目原生支持部署至 [Vercel](https://vercel.com/)、Docker 容器或任何 Node.js 运行环境：
 
-### 步骤 1：准备 PostgreSQL 数据库
-推荐使用以下任意托管 PostgreSQL 数据库：
-- [Neon](https://neon.tech/)（推荐，Serverless 弹性伸缩和连接池支持）
-- [Supabase](https://supabase.com/)
-- 自建 PostgreSQL 实例
-
-获取数据库连接串（例如 `postgres://user:password@ep-xyz.neon.tech/neondb?sslmode=require`）。
-
-### 步骤 2：初始化远程数据库表结构
-在本地将远程 `DATABASE_URL` 填入 `.env` 后运行：
-
-```bash
-bun run db:push
-```
-
-### 步骤 3：部署到 Vercel
-
-1. 将代码推送到 GitHub 仓库。
-2. 登录 [Vercel 控制台](https://vercel.com/)，导入该 GitHub 仓库。
-3. **Environment Variables**（环境变量）中配置以下两项：
-   - `DATABASE_URL`：填写 PostgreSQL 连接字符串。
-   - `APP_ORIGIN`：填写你的 Vercel 生产域名（如 `https://your-visionpass-domain.vercel.app`）。
-4. 点击 **Deploy** 开始全自动构建与部署。
+### 部署到 Vercel：
+1. 将代码推送到 GitHub。
+2. 在 Vercel 控制台导入该仓库，框架预设选择 **Other**（或自动识别的 Vite/Nitro）。
+3. 配置生产环境变量：
+   - `DATABASE_URL`：PostgreSQL 连接串（推荐使用 [Neon](https://neon.tech/) Serverless Postgres）。
+   - `APP_ORIGIN`：生产部署域名（如 `https://your-domain.vercel.app`）。
+   - `SECRET_ENCRYPTION_KEY`：生产用 32 字节 AES 密钥（64 位 Hex 字符串）。
+   - `TOKEN_PEPPER`：生产用 HMAC 加盐密钥。
+4. 点击 **Deploy** 完成一键部署。
 
 ---
 
@@ -104,11 +160,12 @@ bun run db:push
 | 命令 | 说明 |
 |---|---|
 | `bun dev` | 启动 TanStack Start 全栈开发服务器 |
+| `bun test` | 执行全套自动化单元测试（密码学、RANSAC、限流） |
 | `bun run build` | 执行 TypeScript 类型检查与全栈生产打包 |
-| `bun run preview` | 预览生产全栈打包产物 |
+| `bun run preview` | 本地预览生产全栈打包产物 |
 | `bun run db:push` | 将 Drizzle Schema 直接同步到 PostgreSQL |
-| `bun run db:generate` | 生成 Drizzle SQL 迁移脚本 |
-| `bunx @biomejs/biome check` | 执行代码规范与格式检查 |
+| `bun run db:generate` | 生成 Drizzle SQL 增量迁移脚本 |
+| `bunx @biomejs/biome check` | 执行 Biome 代码规范与格式检查 |
 
 ---
 

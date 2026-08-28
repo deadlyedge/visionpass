@@ -1,7 +1,7 @@
 export const CONSTANTS = {
 	CRYPTO: {
 		TOKEN_BYTES: 16, // 16 bytes = 128 bits -> ~22 chars Base64URL
-		PASSCODE_LENGTH: 10, // 10 chars Base32
+		PASSCODE_LENGTH: 8, // 10 chars Base32
 		RESERVE_TTL_MINUTES: 30, // 预留凭证 30 分钟过期
 		DEFAULT_EXPIRES_DAYS: 7, // 凭证默认 7 天过期
 	},

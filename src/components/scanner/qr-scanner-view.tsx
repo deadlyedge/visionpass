@@ -70,7 +70,7 @@ export function QrScannerView({ onDetected }: QrScannerViewProps) {
 							<div className="absolute bottom-0 right-0 w-4 h-4 border-r-2 border-b-2 border-white" />
 
 							{/* 激光扫描线动画 */}
-							<div className="w-full h-0.5 bg-gradient-to-r from-transparent via-indigo-400 to-transparent shadow-[0_0_8px_#818cf8] animate-[scan_2s_ease-in-out_infinite]" />
+							<div className="w-full h-0.5 bg-linear-to-r from-transparent via-indigo-400 to-transparent shadow-[0_0_8px_#818cf8] animate-[scan_2s_ease-in-out_infinite]" />
 						</div>
 					</div>
 				)}

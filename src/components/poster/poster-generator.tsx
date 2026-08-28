@@ -29,22 +29,23 @@ export function PosterGenerator({
 		height: number
 	}>({ width: 400, height: 300 })
 	const [qrDataUrl, setQrDataUrl] = useState<string>('')
+	// 默认边长比例从 0.24 减半至 0.12 (面积缩小至原先的 1/4)
 	const [overlayMeta, setOverlayMeta] = useState<QrOverlayMeta>({
-		x: 0.72,
-		y: 0.72,
-		sizeRatio: 0.24,
+		x: 0.84,
+		y: 0.84,
+		sizeRatio: 0.12,
 	})
 	const [isExporting, setIsExporting] = useState(false)
 	const [exportedPosterUrl, setExportedPosterUrl] = useState<string | null>(
 		null,
 	)
 
-	// 生成纯口令 (displayPasscode) 的二维码，去中心化且抗封阻
+	// 生成纯口令 (displayPasscode) 的二维码，无冗余库内 margin (margin: 0)
 	useEffect(() => {
 		const qrContent = displayPasscode || readUrl
 		QRCode.toDataURL(qrContent, {
 			width: 512,
-			margin: 2,
+			margin: 0,
 			color: {
 				dark: '#0f172a',
 				light: '#ffffff',
@@ -75,8 +76,8 @@ export function PosterGenerator({
 		if (width <= 0 || height <= 0) return
 
 		const sizePx = width * overlayMeta.sizeRatio
-		const padX = 0.03
-		const padY = (height * 0.03) / height
+		const padX = 0.02
+		const padY = (height * 0.02) / height
 
 		const maxX = Math.max(0, (width - sizePx) / width - padX)
 		const maxY = Math.max(0, (height - sizePx) / height - padY)
@@ -97,7 +98,7 @@ export function PosterGenerator({
 		}
 	}
 
-	// 离线全尺寸合成导出海报 (保持 1:1 正方形 QR 码，杜绝拉伸变形)
+	// 离线全尺寸合成导出海报 (带 3 像素紧凑精致白色边框)
 	const handleExport = async () => {
 		setIsExporting(true)
 		try {
@@ -133,35 +134,25 @@ export function PosterGenerator({
 			const qrX = naturalW * overlayMeta.x
 			const qrY = naturalH * overlayMeta.y
 
-			const padding = qrSize * 0.06
-			const cornerRadius = qrSize * 0.08
+			// 按比例缩放并保持 3px 左右的紧凑白边 (最少 3 像素)
+			const borderPx = Math.max(3, Math.round(naturalW * 0.003))
 
-			// 绘制阴影与白底 (白底也是等宽高正方形)
-			ctx.save()
-			ctx.shadowColor = 'rgba(0, 0, 0, 0.35)'
-			ctx.shadowBlur = 16
-			ctx.shadowOffsetX = 0
-			ctx.shadowOffsetY = 4
-
+			// 绘制白色边框背景
 			ctx.fillStyle = '#ffffff'
-			ctx.beginPath()
-			ctx.roundRect(
-				qrX - padding,
-				qrY - padding,
-				qrSize + padding * 2,
-				qrSize + padding * 2,
-				cornerRadius,
+			ctx.fillRect(
+				qrX - borderPx,
+				qrY - borderPx,
+				qrSize + borderPx * 2,
+				qrSize + borderPx * 2,
 			)
-			ctx.fill()
-			ctx.restore()
 
-			// 绘制等比例 QR 码 (1:1 绝不压扁)
+			// 绘制等比例 QR 码
 			ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize)
 
-			// 3. 底部仅呈现纯粹口令字符串 (不加“口令：”中文前缀，等宽清晰)
+			// 3. 底部呈现纯粹口令字符串 (居中紧随 QR 下方)
 			if (displayPasscode) {
 				ctx.save()
-				const fontSize = Math.max(14, Math.round(qrSize * 0.1))
+				const fontSize = Math.max(12, Math.round(qrSize * 0.15))
 				ctx.font = `bold ${fontSize}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`
 				ctx.fillStyle = '#0f172a'
 				ctx.textAlign = 'center'
@@ -169,7 +160,7 @@ export function PosterGenerator({
 				ctx.fillText(
 					displayPasscode,
 					qrX + qrSize / 2,
-					qrY + qrSize + padding * 0.9,
+					qrY + qrSize + borderPx + 3,
 				)
 				ctx.restore()
 			}

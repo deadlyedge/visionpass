@@ -1,3 +1,4 @@
+import jsQR from 'jsqr'
 import { useEffect, useRef, useState } from 'react'
 
 export interface UseBarcodeScannerOptions {
@@ -18,17 +19,18 @@ export function useBarcodeScanner({
 	videoRef,
 	enabled,
 	onDetected,
-	scanIntervalMs = 250,
+	scanIntervalMs = 120, // 高频抽帧扫码 (约 8fps)
 }: UseBarcodeScannerOptions) {
 	const [isScanning, setIsScanning] = useState(false)
 	const [scannerEngine, setScannerEngine] = useState<
-		'native' | 'canvas-fallback' | 'unsupported'
+		'native' | 'jsqr' | 'unsupported'
 	>('unsupported')
 
 	const detectorRef = useRef<any>(null)
 	const timerRef = useRef<any>(null)
 	const isProcessingRef = useRef(false)
 	const detectedRef = useRef(false)
+	const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
 	// 初始化检测器
 	useEffect(() => {
@@ -39,10 +41,10 @@ export function useBarcodeScanner({
 				})
 				setScannerEngine('native')
 			} catch (_e) {
-				setScannerEngine('canvas-fallback')
+				setScannerEngine('jsqr')
 			}
 		} else {
-			setScannerEngine('canvas-fallback')
+			setScannerEngine('jsqr')
 		}
 	}, [])
 
@@ -70,19 +72,67 @@ export function useBarcodeScanner({
 			isProcessingRef.current = true
 
 			try {
+				// 1. 优先尝试原生 BarcodeDetector (在 Chrome/Android/最新 Safari 上速度极快)
 				if (detectorRef.current) {
-					// 原生 BarcodeDetector 检测
-					const barcodes = await detectorRef.current.detect(video)
-					if (barcodes && barcodes.length > 0 && !detectedRef.current) {
-						const rawValue = barcodes[0].rawValue
-						if (rawValue) {
+					try {
+						const barcodes = await detectorRef.current.detect(video)
+						if (barcodes && barcodes.length > 0 && !detectedRef.current) {
+							const rawValue = barcodes[0].rawValue
+							if (rawValue) {
+								detectedRef.current = true
+								onDetected(rawValue)
+								return
+							}
+						}
+					} catch (nativeErr) {
+						console.debug(
+							'[useBarcodeScanner] Native detect failed, fallback to jsQR:',
+							nativeErr,
+						)
+					}
+				}
+
+				// 2. jsQR 高性能 Canvas 帧扫描 (全浏览器兼容)
+				if (!canvasRef.current) {
+					canvasRef.current = document.createElement('canvas')
+				}
+				const canvas = canvasRef.current
+				const videoW = video.videoWidth
+				const videoH = video.videoHeight
+
+				if (videoW > 0 && videoH > 0) {
+					// 适度缩放以加快扫描计算 (最长边约 480px~640px)
+					let scanW = videoW
+					let scanH = videoH
+					const maxScanEdge = 640
+					if (scanW > maxScanEdge || scanH > maxScanEdge) {
+						if (scanW >= scanH) {
+							scanH = Math.round((scanH * maxScanEdge) / scanW)
+							scanW = maxScanEdge
+						} else {
+							scanW = Math.round((scanW * maxScanEdge) / scanH)
+							scanH = maxScanEdge
+						}
+					}
+
+					canvas.width = scanW
+					canvas.height = scanH
+					const ctx = canvas.getContext('2d', { willReadFrequently: true })
+					if (ctx) {
+						ctx.drawImage(video, 0, 0, scanW, scanH)
+						const imageData = ctx.getImageData(0, 0, scanW, scanH)
+						const code = jsQR(imageData.data, scanW, scanH, {
+							inversionAttempts: 'attemptBoth',
+						})
+
+						if (code?.data && !detectedRef.current) {
 							detectedRef.current = true
-							onDetected(rawValue)
+							onDetected(code.data)
 						}
 					}
 				}
 			} catch (err) {
-				console.debug('[useBarcodeScanner] Native scan frame skipped:', err)
+				console.debug('[useBarcodeScanner] Scan frame skipped:', err)
 			} finally {
 				isProcessingRef.current = false
 			}

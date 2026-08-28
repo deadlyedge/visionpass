@@ -60,6 +60,33 @@ export function useCameraStream(options: UseCameraStreamOptions = {}) {
 		setIsStreaming(false)
 	}, [])
 
+	// 将当前活跃的 streamRef 绑定并播放到 videoRef DOM
+	const attachStreamToVideo = useCallback(async () => {
+		const video = videoRef.current
+		const stream = streamRef.current
+		if (!video || !stream) return false
+
+		// 检查 stream 中是否有活跃的 track
+		const activeTracks = stream
+			.getVideoTracks()
+			.filter((t) => t.readyState === 'live')
+		if (activeTracks.length === 0) return false
+
+		if (video.srcObject !== stream) {
+			video.srcObject = stream
+		}
+
+		try {
+			await video.play()
+			setIsStreaming(true)
+			return true
+		} catch (e) {
+			console.warn('[useCameraStream] video play catch:', e)
+			setIsStreaming(true)
+			return true
+		}
+	}, [])
+
 	// 启动视频流
 	const startStream = useCallback(async () => {
 		if (
@@ -68,6 +95,19 @@ export function useCameraStream(options: UseCameraStreamOptions = {}) {
 		) {
 			setError('当前浏览器不支持或已禁用摄像头访问')
 			return
+		}
+
+		// 1. 如果当前已有活着的 stream，且 video 元素挂载了，直接重新 attach
+		if (streamRef.current) {
+			const activeTracks = streamRef.current
+				.getVideoTracks()
+				.filter((t) => t.readyState === 'live')
+			if (activeTracks.length > 0) {
+				const attached = await attachStreamToVideo()
+				if (attached) {
+					return
+				}
+			}
 		}
 
 		stopStream()
@@ -106,7 +146,14 @@ export function useCameraStream(options: UseCameraStreamOptions = {}) {
 			setError(msg)
 			setIsStreaming(false)
 		}
-	}, [activeDeviceId, idealFacingMode, aspectRatio, stopStream, refreshDevices])
+	}, [
+		activeDeviceId,
+		idealFacingMode,
+		aspectRatio,
+		stopStream,
+		refreshDevices,
+		attachStreamToVideo,
+	])
 
 	// 监听设备切换
 	useEffect(() => {
@@ -130,6 +177,7 @@ export function useCameraStream(options: UseCameraStreamOptions = {}) {
 		isStreaming,
 		startStream,
 		stopStream,
+		attachStreamToVideo,
 		error,
 	}
 }

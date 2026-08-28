@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from 'react'
 export interface QrOverlayMeta {
 	x: number // 归一化 0~1 (左上角相对于容器宽度的 x 比例)
 	y: number // 归一化 0~1 (左上角相对于容器高度的 y 比例)
-	sizeRatio: number // 归一化正方形边长相对于容器宽度的比例 (例如 0.25)
+	sizeRatio: number // 归一化正方形边长相对于容器宽度的比例
 }
 
 export interface QrOverlayDraggableProps {
@@ -126,16 +126,16 @@ export function QrOverlayDraggable({
 				height: `${pixelSize}px`,
 				transform: `translate3d(${pixelLeft}px, ${pixelTop}px, 0)`,
 			}}
-			className={`absolute top-0 left-0 touch-none select-none rounded-xl p-1.5 bg-white shadow-2xl cursor-move transition-shadow ${
+			className={`absolute top-0 left-0 touch-none select-none cursor-move transition-shadow p-[3px] bg-white rounded-sm ${
 				isDragging
 					? 'ring-2 ring-indigo-500 shadow-indigo-500/30 scale-105 z-30'
-					: 'ring-1 ring-black/10 z-20'
+					: 'shadow-md z-20'
 			}`}
 		>
 			<img
 				src={qrDataUrl}
 				alt="QR Code"
-				className="w-full h-full object-contain pointer-events-none rounded-lg"
+				className="w-full h-full object-contain pointer-events-none block"
 			/>
 			{/* 拖拽指示悬浮标 */}
 			<div className="absolute -top-2 -right-2 bg-indigo-600 text-white p-1 rounded-full shadow pointer-events-none">

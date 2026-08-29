@@ -45,7 +45,7 @@ export function LandingPage() {
 				{/* Pill Badge */}
 				<div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs font-medium text-indigo-300 backdrop-blur-md shadow-sm">
 					<Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-					<span>VisionPass v6.0 · 全栈物理密语系统</span>
+					<span>VisionPass v0.6.1 · 全栈物理密语系统</span>
 				</div>
 
 				{/* Main Title */}

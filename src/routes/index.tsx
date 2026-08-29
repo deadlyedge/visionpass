@@ -40,7 +40,7 @@ export function LandingPage() {
 			{/* HERO SECTION */}
 			<section className="relative px-4 sm:px-6 max-w-5xl mx-auto text-center space-y-8">
 				{/* Background Glow */}
-				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 sm:w-[500px] h-96 sm:h-[500px] bg-indigo-600/15 blur-[120px] rounded-full pointer-events-none -z-10" />
+				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 sm:w-125 h-96 sm:h-125 bg-indigo-600/15 blur-[120px] rounded-full pointer-events-none -z-10" />
 
 				{/* Pill Badge */}
 				<div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs font-medium text-indigo-300 backdrop-blur-md shadow-sm">
@@ -53,7 +53,7 @@ export function LandingPage() {
 					<h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.15]">
 						让现实世界的万物
 						<br />
-						<span className="bg-gradient-to-r from-indigo-400 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
+						<span className="bg-linear-to-r from-indigo-400 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
 							成为你的数字密钥
 						</span>
 					</h1>
@@ -69,7 +69,7 @@ export function LandingPage() {
 					<Link
 						to="/playground"
 						search={{ tab: 'create' }}
-						className="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-2xl transition-all duration-200 shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 text-sm group"
+						className="w-full sm:w-auto px-7 py-3.5 bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-2xl transition-all duration-200 shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 text-sm group"
 					>
 						<Sparkles className="w-4 h-4 text-indigo-200 group-hover:rotate-12 transition-transform" />
 						<span>立即体验演练场 (Playground)</span>
@@ -157,7 +157,7 @@ export function LandingPage() {
 
 			{/* TECHNICAL HIGHLIGHTS */}
 			<section className="max-w-5xl mx-auto px-4 sm:px-6 space-y-12">
-				<div className="bg-gradient-to-b from-slate-900/90 to-slate-950 border border-slate-800 rounded-3xl p-6 sm:p-10 space-y-8">
+				<div className="bg-linear-to-b from-slate-900/90 to-slate-950 border border-slate-800 rounded-3xl p-6 sm:p-10 space-y-8">
 					<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
 						<div className="space-y-1">
 							<h3 className="text-xl font-bold text-white">
@@ -265,7 +265,7 @@ export function LandingPage() {
 
 			{/* BOTTOM CTA */}
 			<section className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6">
-				<div className="p-8 sm:p-12 bg-gradient-to-br from-indigo-950/50 via-slate-900/90 to-violet-950/50 border border-indigo-500/30 rounded-3xl space-y-6 backdrop-blur-md">
+				<div className="p-8 sm:p-12 bg-linear-to-br from-indigo-950/50 via-slate-900/90 to-violet-950/50 border border-indigo-500/30 rounded-3xl space-y-6 backdrop-blur-md">
 					<h2 className="text-2xl sm:text-3xl font-black text-white">
 						准备好开启您的视觉密语体验了吗？
 					</h2>
@@ -277,7 +277,7 @@ export function LandingPage() {
 						<Link
 							to="/playground"
 							search={{ tab: 'create' }}
-							className="px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-medium rounded-xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center gap-2"
+							className="px-8 py-3.5 bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-medium rounded-xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center gap-2"
 						>
 							<Sparkles className="w-4 h-4" />
 							<span>进入演练场 (Playground)</span>

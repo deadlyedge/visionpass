@@ -38,7 +38,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 	component: RootLayout,
 })
 
-const GITHUB_REPO_URL = 'https://github.com/chen-fe/visionpass'
+const GITHUB_REPO_URL = 'https://github.com/deadlyedge/visionpass'
 
 function GithubIcon({ className = 'w-4 h-4' }: { className?: string }) {
 	return (
@@ -80,7 +80,7 @@ function RootLayout() {
 								onClick={closeMobileMenu}
 								className="flex items-center gap-2.5 font-bold text-slate-100 hover:text-indigo-400 transition group"
 							>
-								<div className="p-2 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+								<div className="p-2 bg-linear-to-br from-indigo-500 to-violet-600 rounded-xl text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
 									<Shield className="w-4 h-4" />
 								</div>
 								<div className="flex flex-col">
@@ -89,7 +89,7 @@ function RootLayout() {
 											VisionPass
 										</span>
 										<span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
-											v6.0
+											v0.6.1
 										</span>
 									</div>
 									<span className="text-[10px] text-slate-400 hidden sm:inline -mt-1 font-normal">
@@ -247,6 +247,7 @@ function RootLayout() {
 							<div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
 								<div className="flex items-center gap-2 font-semibold text-slate-300">
 									<Shield className="w-4 h-4 text-indigo-500" />
+									
 									<span>VisionPass v6.0</span>
 								</div>
 								<span className="hidden sm:inline text-slate-700">|</span>

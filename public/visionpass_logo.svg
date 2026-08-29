@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 724 781" fill="currentColor">
+  <!-- Left Side: Camera / Keyhole / Scanner Viewport -->
+  <path d="M358.587 750.08H38.007l-14.828-2.988-12.058-8.134L2.987 726.9 0 712.072V68.249L2.987 53.42l8.134-12.057 12.058-8.134 14.828-2.988h320.58v71.984H71.984v575.87h286.603z" />
+  <circle cx="251.943" cy="282.184" r="71.984" fill="none" stroke="currentColor" stroke-width="50.029" />
+  <path d="M358.573 466.047c-11.29-7.556-26.928-6.36-36.876 3.588L56.618 734.714c-11.378 11.378-29.874 11.378-41.252 0s-11.378-29.875 0-41.253l265.078-265.078c21.093-21.093 50.647-29.087 78.129-23.953z" />
+
+  <!-- Center Divider Line -->
+  <rect x="382.588" y="0" width="10.918" height="780.321" />
+
+  <!-- Right Side: Feature Point Matrix / Key Bits -->
+  <rect x="417.176" y="64.333" width="88.846" height="88.846" />
+  <rect x="634.47" y="64.333" width="88.845" height="88.846" />
+  <rect x="521.053" y="204.779" width="88.846" height="88.846" />
+  <rect x="417.176" y="345.224" width="88.846" height="88.846" />
+  <rect x="417.176" y="485.67" width="88.846" height="88.846" />
+  <rect x="634.47" y="485.67" width="88.845" height="88.846" />
+  <rect x="521.053" y="626.115" width="88.846" height="88.846" />
+</svg>

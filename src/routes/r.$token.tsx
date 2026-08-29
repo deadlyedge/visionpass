@@ -50,8 +50,10 @@ export function ReadPage({ token }: { token: string }) {
 		h: number
 	}>({ w: 640, h: 480 })
 
-	// 音频提示音
+	// 音频提示音与播放防重锁
 	const beepAudioRef = useRef<HTMLAudioElement | null>(null)
+	const hasPlayedBeepRef = useRef(false)
+	const isMatchedFinishedRef = useRef(false)
 
 	useEffect(() => {
 		if (typeof window !== 'undefined') {
@@ -60,6 +62,8 @@ export function ReadPage({ token }: { token: string }) {
 	}, [])
 
 	const playSuccessBeep = () => {
+		if (hasPlayedBeepRef.current) return
+		hasPlayedBeepRef.current = true
 		try {
 			if (beepAudioRef.current) {
 				beepAudioRef.current.currentTime = 0
@@ -95,6 +99,8 @@ export function ReadPage({ token }: { token: string }) {
 	const handleFeatureReady = async (
 		payload: FeaturePayloadV1,
 	): Promise<boolean> => {
+		if (isMatchedFinishedRef.current) return true
+
 		try {
 			const result = await verifyCredentialFn({
 				data: {
@@ -103,7 +109,8 @@ export function ReadPage({ token }: { token: string }) {
 				},
 			})
 
-			if (result.matched) {
+			if (result.matched && !isMatchedFinishedRef.current) {
+				isMatchedFinishedRef.current = true
 				playSuccessBeep()
 				setRevealedSecret(result.secret)
 				stopStream()

@@ -57,7 +57,7 @@ export function useLiveOrbMatcher({
 			try {
 				const width = video.videoWidth
 				const height = video.videoHeight
-				if (!width || !height) return
+				if (!width || !height || isMatchedRef.current) return
 
 				// 等比缩放到 640px
 				const maxEdge = CONSTANTS.MATCH.TARGET_LONG_EDGE
@@ -80,7 +80,7 @@ export function useLiveOrbMatcher({
 				canvas.width = targetW
 				canvas.height = targetH
 				const ctx = canvas.getContext('2d')
-				if (!ctx) return
+				if (!ctx || isMatchedRef.current) return
 
 				ctx.drawImage(video, 0, 0, targetW, targetH)
 				const imageData = ctx.getImageData(0, 0, targetW, targetH)
@@ -111,6 +111,8 @@ export function useLiveOrbMatcher({
 					},
 				)
 
+				if (isMatchedRef.current) return
+
 				const count = payload.keypoints.count
 				setLastExtractedCount(count)
 
@@ -118,12 +120,18 @@ export function useLiveOrbMatcher({
 					onKeypointsExtracted(payload.keypoints.xy, targetW, targetH)
 				}
 
-				// 若特征点充足，触发服务端比对
-				if (count >= CONSTANTS.MATCH.MIN_KEYPOINTS_CLIENT) {
+				// 若特征点充足且未命中，触发服务端比对
+				if (
+					count >= CONSTANTS.MATCH.MIN_KEYPOINTS_CLIENT &&
+					!isMatchedRef.current
+				) {
 					const matched = await onFeatureReady(payload)
 					if (matched) {
 						isMatchedRef.current = true
-						if (timerRef.current) clearInterval(timerRef.current)
+						if (timerRef.current) {
+							clearInterval(timerRef.current)
+							timerRef.current = null
+						}
 					}
 				}
 			} catch (err) {

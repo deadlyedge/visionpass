@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CreateRouteImport } from './routes/create'
+import { Route as DocsRouteImport } from './routes/docs'
+import { Route as PlaygroundRouteImport } from './routes/playground'
 import { Route as ReadRouteImport } from './routes/read'
 import { Route as RTokenRouteImport } from './routes/r.$token'
 
@@ -22,6 +24,16 @@ const IndexRoute = IndexRouteImport.update({
 const CreateRoute = CreateRouteImport.update({
   id: '/create',
   path: '/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlaygroundRoute = PlaygroundRouteImport.update({
+  id: '/playground',
+  path: '/playground',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReadRoute = ReadRouteImport.update({
@@ -38,12 +50,16 @@ const RTokenRoute = RTokenRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
+  '/docs': typeof DocsRoute
+  '/playground': typeof PlaygroundRoute
   '/read': typeof ReadRoute
   '/r/$token': typeof RTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
+  '/docs': typeof DocsRoute
+  '/playground': typeof PlaygroundRoute
   '/read': typeof ReadRoute
   '/r/$token': typeof RTokenRoute
 }
@@ -51,20 +67,31 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
+  '/docs': typeof DocsRoute
+  '/playground': typeof PlaygroundRoute
   '/read': typeof ReadRoute
   '/r/$token': typeof RTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/create' | '/read' | '/r/$token'
+  fullPaths: '/' | '/create' | '/docs' | '/playground' | '/read' | '/r/$token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/create' | '/read' | '/r/$token'
-  id: '__root__' | '/' | '/create' | '/read' | '/r/$token'
+  to: '/' | '/create' | '/docs' | '/playground' | '/read' | '/r/$token'
+  id:
+    | '__root__'
+    | '/'
+    | '/create'
+    | '/docs'
+    | '/playground'
+    | '/read'
+    | '/r/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CreateRoute: typeof CreateRoute
+  DocsRoute: typeof DocsRoute
+  PlaygroundRoute: typeof PlaygroundRoute
   ReadRoute: typeof ReadRoute
   RTokenRoute: typeof RTokenRoute
 }
@@ -83,6 +110,20 @@ declare module '@tanstack/react-router' {
       path: '/create'
       fullPath: '/create'
       preLoaderRoute: typeof CreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/playground': {
+      id: '/playground'
+      path: '/playground'
+      fullPath: '/playground'
+      preLoaderRoute: typeof PlaygroundRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/read': {
@@ -105,6 +146,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CreateRoute: CreateRoute,
+  DocsRoute: DocsRoute,
+  PlaygroundRoute: PlaygroundRoute,
   ReadRoute: ReadRoute,
   RTokenRoute: RTokenRoute,
 }

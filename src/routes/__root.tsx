@@ -7,7 +7,7 @@ import {
 	Scripts,
 	useLocation,
 } from '@tanstack/react-router'
-import { BookOpen, ExternalLink, Menu, Shield, Sparkles, X } from 'lucide-react'
+import { BookOpen, ExternalLink, Menu, Sparkles, X } from 'lucide-react'
 import { useState } from 'react'
 import appCss from '../styles/globals.css?url'
 
@@ -32,13 +32,23 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 		],
 		links: [
 			{ rel: 'stylesheet', href: appCss },
-			{ rel: 'icon', href: '/favicon.ico' },
+			{ rel: 'icon', type: 'image/svg+xml', href: '/visionpass_logo_white.svg' },
 		],
 	}),
 	component: RootLayout,
 })
 
 const GITHUB_REPO_URL = 'https://github.com/deadlyedge/visionpass'
+
+function VisionPassLogo({ className = 'w-4 h-4' }: { className?: string }) {
+	return (
+		<img
+			src="/visionpass_logo_white.svg"
+			alt="VisionPass Logo"
+			className={className}
+		/>
+	)
+}
 
 function GithubIcon({ className = 'w-4 h-4' }: { className?: string }) {
 	return (
@@ -80,8 +90,8 @@ function RootLayout() {
 								onClick={closeMobileMenu}
 								className="flex items-center gap-2.5 font-bold text-slate-100 hover:text-indigo-400 transition group"
 							>
-								<div className="p-2 bg-linear-to-br from-indigo-500 to-violet-600 rounded-xl text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-									<Shield className="w-4 h-4" />
+								<div className="p-2 bg-linear-to-br from-indigo-500 to-violet-600 rounded-xl text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform flex items-center justify-center">
+									<VisionPassLogo className="w-4.5 h-4.5 object-contain" />
 								</div>
 								<div className="flex flex-col">
 									<div className="flex items-center gap-2">
@@ -188,7 +198,7 @@ function RootLayout() {
 											: 'text-slate-300 hover:bg-slate-900'
 									}`}
 								>
-									<Shield className="w-4 h-4 text-indigo-400" />
+									<VisionPassLogo className="w-4 h-4 object-contain opacity-90" />
 									愿景与概述
 								</Link>
 
@@ -246,9 +256,8 @@ function RootLayout() {
 						<div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
 							<div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
 								<div className="flex items-center gap-2 font-semibold text-slate-300">
-									<Shield className="w-4 h-4 text-indigo-500" />
-									
-									<span>VisionPass v6.0</span>
+									<VisionPassLogo className="w-4 h-4 object-contain opacity-80" />
+									<span>VisionPass v0.6.1</span>
 								</div>
 								<span className="hidden sm:inline text-slate-700">|</span>
 								<span>让现实世界的万物，成为你的数字密钥 · 零隐私上云</span>

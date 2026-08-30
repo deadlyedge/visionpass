@@ -1,4 +1,4 @@
-# VisionPass - 视觉密语 (Visual Passcode) v5.1
+# VisionPass - 视觉密语 (Visual Passcode) v0.6.2
 
 VisionPass 是一个基于端侧视觉特征提取与服务端几何一致性检验的现代化全栈视觉密语系统。用户可通过一张参考图片将机密文本安全封存，接收方只有通过相机对准相同或高度相似的物理画面（或上传相册画面），才能通过 ORB 特征与 RANSAC 单应性矩阵几何内点校验解锁并查看密语。
 
@@ -21,9 +21,11 @@ VisionPass 是一个基于端侧视觉特征提取与服务端几何一致性检
 5. **沉浸式连续摄像头流式体验（Continuous Camera Session）**：
    - 结合原生 `BarcodeDetector` 与高性能 `jsQR` 双引擎实现毫秒级秒扫；
    - 扫码命中口令后，摄像头视频流保持连续运行，无缝切入实时画面 ORB 星空散点微光渲染（`KeypointsCanvas`）与自动抽帧比对，彻底告别黑屏卡顿。
-6. **生产级防护与全链路审计**：
-   - 集成 IP 级滑动窗口限流、请求数据包尺寸拦截与 PostgreSQL 结构化验证审计日志（`verification_attempts`）；
-   - 注入 `X-Content-Type-Options`、`X-Frame-Options` 等完备的安全响应头。
+6. **响应式设计与 Playground / Docs 中心 (v6.0)**：
+   - **首页愿景展示**：深度阐述“让物理万物成为数字密钥”的哲学与应用场景；
+   - **Playground (体验工坊)**：一站式创建凭证海报与流式扫码比对；
+   - **在线技术白皮书 (`/docs`)**：从物理愿景、数学算法、全栈选型到时序全景的系统化说明；
+   - **集中式常量配置**：版本号与 GitHub 仓库信息统一收敛至 `CONSTANTS.APP`。
 
 ---
 
@@ -46,12 +48,15 @@ VisionPass 是一个基于端侧视觉特征提取与服务端几何一致性检
 visionpass/
 ├── src/
 │   ├── routes/                   # TanStack Router 路由树
-│   │   ├── __root.tsx            # 全局根布局 (Header, Navigation)
-│   │   ├── index.tsx             # 首页引导
-│   │   ├── create.tsx            # /create 创建凭证与海报分享
-│   │   ├── read.tsx              # /read 一体化连续流式扫码/口令检索验证页
-│   │   └── r.$token.tsx          # /r/:token 直达验证与解密页
+│   │   ├── __root.tsx            # 全局根布局 (Header, Navigation, Footer, 常量注入)
+│   │   ├── index.tsx             # 首页愿景与价值呈现 Landing Page
+│   │   ├── playground.tsx        # /playground 体验工坊 (创建与扫码验证 Tab 切换)
+│   │   ├── docs.tsx              # /docs 开发者与算法技术白皮书
+│   │   ├── create.tsx            # /create 重定向至 /playground?tab=create
+│   │   ├── read.tsx              # /read 重定向至 /playground?tab=verify
+│   │   └── r.$token.tsx          # /r/:token 专用直达验证与解密页
 │   ├── components/               # 交互组件集
+│   │   ├── playground/           # Playground 模块 (CreateSection, ReadSection)
 │   │   ├── poster/               # 拖拽式海报生成器 (PosterGenerator, QrOverlayDraggable)
 │   │   ├── scanner/              # 摄像头扫码与多设备切换器 (QrScannerView, CameraSourceSelect)
 │   │   ├── viewer/               # 密语展示器与 ORB 星空散点渲染 (SecretViewer, KeypointsCanvas)
@@ -73,9 +78,9 @@ visionpass/
 │   │   ├── functions/            # TanStack Start createServerFn (create, meta, verify)
 │   │   └── utils/                # 结构化服务端日志输出
 │   └── lib/                      # 前后端共享工具库
-│       ├── constants.ts          # 全局配置常量 (Token 长度、匹配阈值、限流参数)
+│       ├── constants.ts          # 全局配置常量 (APP 版本与 GitHub 链接、Token 长度、匹配阈值)
 │       ├── feature-codec.ts      # 二进制描述子 Base64URL 编码解码
-│       ├── feature-schema.ts     # Zod 凭证与特征协议 (FeaturePayloadV1)
+│       ├── feature-schema.ts     # Zod 凭证与特征协议 (OrbFeaturePayloadV1)
 │       └── vision-worker-client.ts# 浏览器端 Web Worker 通信客户端
 ├── tests/                        # 单元测试集 (Crypto, Matcher, Security)
 ├── drizzle/                      # 数据库迁移 SQL 脚本
@@ -92,7 +97,7 @@ visionpass/
 
 ```bash
 # 克隆仓库并进入目录
-git clone <your-repo-url>
+git clone https://github.com/deadlyedge/visionpass.git
 cd visionpass
 
 # 安装依赖

@@ -10,12 +10,11 @@ import {
 	Sparkles,
 	Zap,
 } from 'lucide-react'
+import { CONSTANTS } from '../lib/constants'
 
 export const Route = createFileRoute('/')({
 	component: LandingPage,
 })
-
-const GITHUB_REPO_URL = 'https://github.com/chen-fe/visionpass'
 
 function GithubIcon({ className = 'w-4 h-4' }: { className?: string }) {
 	return (
@@ -45,7 +44,9 @@ export function LandingPage() {
 				{/* Pill Badge */}
 				<div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs font-medium text-indigo-300 backdrop-blur-md shadow-sm">
 					<Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-					<span>VisionPass v0.6.1 · 全栈物理密语系统</span>
+					<span>
+						{CONSTANTS.APP.NAME} {CONSTANTS.APP.VERSION} · 全栈物理密语系统
+					</span>
 				</div>
 
 				{/* Main Title */}
@@ -86,7 +87,7 @@ export function LandingPage() {
 					</Link>
 
 					<a
-						href={GITHUB_REPO_URL}
+						href={CONSTANTS.APP.GITHUB_REPO_URL}
 						target="_blank"
 						rel="noreferrer"
 						className="w-full sm:w-auto px-5 py-3.5 bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white font-medium rounded-2xl transition duration-200 flex items-center justify-center gap-2 text-sm"
@@ -283,7 +284,7 @@ export function LandingPage() {
 							<span>进入演练场 (Playground)</span>
 						</Link>
 						<a
-							href={GITHUB_REPO_URL}
+							href={CONSTANTS.APP.GITHUB_REPO_URL}
 							target="_blank"
 							rel="noreferrer"
 							className="px-6 py-3.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-medium rounded-xl text-sm transition flex items-center gap-2"

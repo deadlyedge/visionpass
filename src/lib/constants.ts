@@ -1,4 +1,9 @@
 export const CONSTANTS = {
+	APP: {
+		NAME: 'VisionPass',
+		VERSION: 'v0.6.2',
+		GITHUB_REPO_URL: 'https://github.com/deadlyedge/visionpass',
+	},
 	CRYPTO: {
 		TOKEN_BYTES: 16, // 16 bytes = 128 bits -> ~22 chars Base64URL
 		PASSCODE_LENGTH: 8, // 10 chars Base32

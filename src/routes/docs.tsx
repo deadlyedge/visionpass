@@ -11,6 +11,7 @@ import {
 	Zap,
 } from 'lucide-react'
 import { z } from 'zod'
+import { CONSTANTS } from '../lib/constants'
 
 const docsSearchSchema = z.object({
 	section: z
@@ -23,8 +24,6 @@ export const Route = createFileRoute('/docs')({
 	validateSearch: (search) => docsSearchSchema.parse(search),
 	component: DocsPage,
 })
-
-const GITHUB_REPO_URL = 'https://github.com/chen-fe/visionpass'
 
 function GithubIcon({ className = 'w-4 h-4' }: { className?: string }) {
 	return (
@@ -67,7 +66,10 @@ export function DocsPage() {
 					<div className="space-y-2">
 						<div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs font-medium text-indigo-400">
 							<BookOpen className="w-3.5 h-3.5" />
-							<span>VisionPass 开发者与技术白皮书 (v6.0)</span>
+							<span>
+								{CONSTANTS.APP.NAME} 开发者与技术白皮书 ({CONSTANTS.APP.VERSION}
+								)
+							</span>
 						</div>
 						<h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
 							从物理愿景到数学算法与全栈实现
@@ -79,7 +81,7 @@ export function DocsPage() {
 					</div>
 
 					<a
-						href={GITHUB_REPO_URL}
+						href={CONSTANTS.APP.GITHUB_REPO_URL}
 						target="_blank"
 						rel="noreferrer"
 						className="flex items-center gap-2 px-4 py-2 bg-slate-900 border border-slate-700 hover:border-slate-500 rounded-xl text-xs font-medium text-slate-200 hover:text-white transition shadow-sm"
@@ -201,9 +203,9 @@ export function DocsPage() {
 									绝大部分图像识别系统要求将用户的私密照片直接上传至云端服务器进行推理。这带来了巨大的隐私泄露风险和合规隐患。
 								</p>
 								<p>
-									VisionPass 确立了不可动摇的**第一铁律**：
+									VisionPass 确立了不可动摇的
 									<strong className="text-indigo-400 font-medium ml-1">
-										原始相片仅在用户设备端停留，图像解码、缩放、灰度化与特征描述子提取全部在浏览器沙箱内完成。
+										第一铁律：原始相片仅在用户设备端停留，图像解码、缩放、灰度化与特征描述子提取全部在浏览器沙箱内完成。
 									</strong>
 									发送到服务端的仅仅是离散数学点坐标与 256 位 BRIEF
 									二进制向量，无法由这些离散点反向还原出原始图像画面。
@@ -250,8 +252,11 @@ export function DocsPage() {
 
 							<div className="prose prose-invert max-w-none text-slate-300 text-sm sm:text-base leading-relaxed space-y-6">
 								<p>
-									计算机视觉识别物理物体的核心在于寻找对**尺度变化（Scale）、旋转（Rotation）和光照强度（Illumination）**具备强鲁棒性的局部不变性特征（Local
-									Invariant Features）。
+									计算机视觉识别物理物体的核心在于寻找对
+									<strong>
+										尺度变化（Scale）、旋转（Rotation）和光照强度（Illumination）
+									</strong>
+									具备强鲁棒性的局部不变性特征（Local Invariant Features）。
 								</p>
 
 								{/* Step 1: ORB */}
@@ -274,8 +279,8 @@ export function DocsPage() {
 										<li>
 											<strong>rBRIEF 描述子生成</strong>：根据方向角 theta
 											旋转特征点采样点对，生成 256 位（32
-											字节）紧凑二进制串。两个描述子之间的相似度可通过极速的
-											**Hamming 距离（位异或 + 位计数）** 评估。
+											字节）紧凑二进制串。两个描述子之间的相似度可通过极速的{' '}
+											<strong>Hamming 距离（位异或 + 位计数）</strong> 评估。
 										</li>
 									</ul>
 								</div>
@@ -321,7 +326,8 @@ export function DocsPage() {
 										s * [x', y', 1]^T = H * [x, y, 1]^T
 									</div>
 									<p className="text-xs text-slate-400">
-										<strong>RANSAC (Random Sample Consensus) 迭代流程</strong>：
+										<strong>RANSAC (Random Sample Consensus) 迭代流程</strong>
+										：
 										<br />
 										1. 随机选取 4 对不共线的匹配点；
 										<br />

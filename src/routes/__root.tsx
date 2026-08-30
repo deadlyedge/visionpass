@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-router'
 import { BookOpen, ExternalLink, Menu, Sparkles, X } from 'lucide-react'
 import { useState } from 'react'
+import { CONSTANTS } from '../lib/constants'
 import appCss from '../styles/globals.css?url'
 
 export interface RouterContext {
@@ -21,8 +22,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 			{ charSet: 'utf-8' },
 			{ name: 'viewport', content: 'width=device-width, initial-scale=1' },
 			{
-				title:
-					'VisionPass · 视觉密语 - 基于端侧视觉特征与几何一致性检验的物理密语系统',
+				title: `${CONSTANTS.APP.NAME} · 视觉密语 - 基于端侧视觉特征与几何一致性检验的物理密语系统`,
 			},
 			{
 				name: 'description',
@@ -37,9 +37,6 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 	}),
 	component: RootLayout,
 })
-
-const GITHUB_REPO_URL = 'https://github.com/deadlyedge/visionpass'
-
 function VisionPassLogo({ className = 'w-4 h-4' }: { className?: string }) {
 	return (
 		<img
@@ -96,10 +93,10 @@ function RootLayout() {
 								<div className="flex flex-col">
 									<div className="flex items-center gap-2">
 										<span className="tracking-tight text-base sm:text-lg">
-											VisionPass
+											{CONSTANTS.APP.NAME}
 										</span>
 										<span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
-											v0.6.1
+											{CONSTANTS.APP.VERSION}
 										</span>
 									</div>
 									<span className="text-[10px] text-slate-400 hidden sm:inline -mt-1 font-normal">
@@ -149,7 +146,7 @@ function RootLayout() {
 
 								{/* GitHub Link */}
 								<a
-									href={GITHUB_REPO_URL}
+									href={CONSTANTS.APP.GITHUB_REPO_URL}
 									target="_blank"
 									rel="noreferrer"
 									className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-900 border border-slate-700/80 text-slate-200 hover:text-white hover:border-slate-500 hover:bg-slate-800 transition shadow-sm"
@@ -163,7 +160,7 @@ function RootLayout() {
 							{/* Mobile Menu Button */}
 							<div className="flex items-center gap-2 md:hidden">
 								<a
-									href={GITHUB_REPO_URL}
+									href={CONSTANTS.APP.GITHUB_REPO_URL}
 									target="_blank"
 									rel="noreferrer"
 									className="p-2 text-slate-400 hover:text-white bg-slate-900 border border-slate-800 rounded-lg"
@@ -233,7 +230,7 @@ function RootLayout() {
 								<div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400 px-1">
 									<span>开源协议: MIT License</span>
 									<a
-										href={GITHUB_REPO_URL}
+										href={CONSTANTS.APP.GITHUB_REPO_URL}
 										target="_blank"
 										rel="noreferrer"
 										className="text-indigo-400 flex items-center gap-1 hover:underline"
@@ -257,7 +254,9 @@ function RootLayout() {
 							<div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
 								<div className="flex items-center gap-2 font-semibold text-slate-300">
 									<VisionPassLogo className="w-4 h-4 object-contain opacity-80" />
-									<span>VisionPass v0.6.1</span>
+									<span>
+										{CONSTANTS.APP.NAME} {CONSTANTS.APP.VERSION}
+									</span>
 								</div>
 								<span className="hidden sm:inline text-slate-700">|</span>
 								<span>让现实世界的万物，成为你的数字密钥 · 零隐私上云</span>
@@ -279,7 +278,7 @@ function RootLayout() {
 									技术白皮书
 								</Link>
 								<a
-									href={GITHUB_REPO_URL}
+									href={CONSTANTS.APP.GITHUB_REPO_URL}
 									target="_blank"
 									rel="noreferrer"
 									className="hover:text-slate-200 transition flex items-center gap-1"

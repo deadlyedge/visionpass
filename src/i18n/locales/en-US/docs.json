@@ -15,6 +15,7 @@
 			"physicalDesc": "A book on your desk, an oil painting on the wall, or a metal plaque on equipment possesses unique micro-textures and lighting geometry. Only someone physically on site can capture these optical signatures.",
 			"ruleTitle": "🛡️ Core Security Principle: Zero-Knowledge On-Cloud (Privacy-First)",
 			"ruleDesc1": "Most vision systems upload raw photos to cloud servers for inference, introducing severe privacy and compliance risks.",
+			"ruleDesc2Prefix": "VisionPass establishes the uncompromised",
 			"ruleDesc2": "Iron Rule 1: Raw photos never leave the user device. Decoding, resizing, grayscale conversion, and ORB feature extraction run 100% inside client browser sandboxes.",
 			"ruleDesc3": "Servers receive only discrete point coordinates and 256-bit BRIEF binary vectors, making it mathematically impossible to reconstruct the original image.",
 			"threatTitle": "Threat Model & Defense Matrix",

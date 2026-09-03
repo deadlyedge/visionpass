@@ -11,6 +11,7 @@
 	"language": "语言",
 	"quickStart": "快速体验",
 	"switchLanguage": "切换语言",
+	"licenseNotice": "开源协议: MIT License",
 	"footer": {
 		"copyright": "VisionPass 视觉密语. 基于 MIT License 开源.",
 		"builtWith": "基于 TanStack Start + OpenCV.js WASM + 纯 TS RANSAC 算法构建",

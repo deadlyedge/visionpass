@@ -8,6 +8,8 @@
 	"inputModeImage": "Album Image Matching",
 	"alignPrompt": "Please align camera with the physical reference object",
 	"matchingLive": "Matching in real-time... Extracted {count} keypoints",
+	"startingCamera": "Initializing camera viewfinder...",
+	"switchPhotoPrompt": "Switch to album photo upload",
 	"decryptSuccess": "🎉 Secret Decrypted Successfully!",
 	"secretLabel": "Decrypted Secret Message",
 	"returnHome": "Return to Home",

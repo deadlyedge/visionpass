@@ -8,6 +8,8 @@
 	"inputModeImage": "相册单图比对",
 	"alignPrompt": "请将摄像头对准实体参考物",
 	"matchingLive": "正在实时比对中... 提取到 {count} 个特征点",
+	"startingCamera": "正在调起摄像头取景器...",
+	"switchPhotoPrompt": "切换为相册选取图片",
 	"decryptSuccess": "🎉 密语解密成功！",
 	"secretLabel": "解密所得密语",
 	"returnHome": "返回愿景首页",

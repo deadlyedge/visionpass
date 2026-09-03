@@ -248,7 +248,7 @@ function RootLayout() {
 							</Link>
 
 							<div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400 px-1">
-								<span>开源协议: MIT License</span>
+								<span>{t('nav.licenseNotice')}</span>
 								<a
 									href={CONSTANTS.APP.GITHUB_REPO_URL}
 									target="_blank"

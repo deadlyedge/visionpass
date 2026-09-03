@@ -197,7 +197,7 @@ export function DocsPage() {
 								</h3>
 								<p>{t('docs.sections.vision.ruleDesc1')}</p>
 								<p>
-									VisionPass 确立了不可动摇的
+									{t('docs.sections.vision.ruleDesc2Prefix')}{' '}
 									<strong className="text-indigo-400 font-medium ml-1">
 										{t('docs.sections.vision.ruleDesc2')}
 									</strong>{' '}

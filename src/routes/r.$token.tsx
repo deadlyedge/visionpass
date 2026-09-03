@@ -340,7 +340,7 @@ export function ReadPage({ token }: { token: string }) {
 								{!isStreaming && !cameraError && (
 									<div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-400 text-xs">
 										<Camera className="w-8 h-8 text-indigo-400 animate-pulse" />
-										<span>正在调起摄像头取景器...</span>
+										<span>{t('r.startingCamera')}</span>
 									</div>
 								)}
 
@@ -353,7 +353,7 @@ export function ReadPage({ token }: { token: string }) {
 											onClick={() => setInputMode('photo')}
 											className="mt-2 text-xs text-indigo-400 underline"
 										>
-											切换为相册选取图片
+											{t('r.switchPhotoPrompt')}
 										</button>
 									</div>
 								)}

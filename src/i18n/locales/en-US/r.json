@@ -1,0 +1,15 @@
+{
+	"title": "Direct Credential Verification",
+	"subtitle": "Point your camera or upload a photo of the physical reference object to verify spatial geometry and decrypt the secret.",
+	"statusChecking": "Checking credential validity...",
+	"notFound": "Credential Not Found or Expired",
+	"notFoundDesc": "This credential may have expired, been deleted, or the Token is invalid. Please verify the URL.",
+	"inputModeCamera": "Live Camera Alignment",
+	"inputModeImage": "Album Image Matching",
+	"alignPrompt": "Please align camera with the physical reference object",
+	"matchingLive": "Matching in real-time... Extracted {count} keypoints",
+	"decryptSuccess": "🎉 Secret Decrypted Successfully!",
+	"secretLabel": "Decrypted Secret Message",
+	"returnHome": "Return to Home",
+	"goToPlayground": "Go to Playground"
+}

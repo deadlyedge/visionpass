@@ -11,6 +11,7 @@ import {
 import { useEffect, useRef, useState } from 'react'
 import { useCameraStream } from '../../hooks/use-camera-stream'
 import { useLiveOrbMatcher } from '../../hooks/use-live-orb-matcher'
+import { useI18n } from '../../i18n'
 import { extractOrbFeatures } from '../../lib/extract-orb'
 import type { FeaturePayloadV1 } from '../../lib/feature-schema'
 import {
@@ -29,6 +30,7 @@ interface ReadSectionProps {
 }
 
 export function ReadSection({ initialPasscode = '' }: ReadSectionProps) {
+	const { t } = useI18n()
 	const [token, setToken] = useState(initialPasscode.trim())
 	const [tokenLocked, setTokenLocked] = useState(!!initialPasscode.trim())
 	const [inputMode, setInputMode] = useState<'camera' | 'photo'>('camera')
@@ -241,7 +243,7 @@ export function ReadSection({ initialPasscode = '' }: ReadSectionProps) {
 							className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium rounded-xl transition inline-flex items-center gap-1.5"
 						>
 							<RefreshCw className="w-3.5 h-3.5" />
-							验证下一份凭证
+							{t('playground.read.tryAgain')}
 						</button>
 					</div>
 				</div>
@@ -251,7 +253,7 @@ export function ReadSection({ initialPasscode = '' }: ReadSectionProps) {
 					<div className="space-y-3">
 						<div className="flex items-center justify-between">
 							<span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-								1. 凭证 Token (扫码自动填入或手动输入)
+								1. {t('playground.result.passcodeTitle')}
 							</span>
 							{tokenLocked && (
 								<button
@@ -263,7 +265,7 @@ export function ReadSection({ initialPasscode = '' }: ReadSectionProps) {
 									className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
 								>
 									<RefreshCw className="w-3 h-3" />
-									更换 Token
+									{t('common.retry')}
 								</button>
 							)}
 						</div>
@@ -280,7 +282,7 @@ export function ReadSection({ initialPasscode = '' }: ReadSectionProps) {
 												setToken(e.target.value)
 												setErrorMessage(null)
 											}}
-											placeholder="输入凭证 Token 或粘贴完整链接"
+											placeholder={t('playground.read.passcodePlaceholder')}
 											className="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm font-mono text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
 										/>
 									</div>
@@ -299,14 +301,14 @@ export function ReadSection({ initialPasscode = '' }: ReadSectionProps) {
 										disabled={!token.trim()}
 										className="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-medium rounded-xl text-xs sm:text-sm transition whitespace-nowrap"
 									>
-										锁定并查询
+										{t('playground.read.verifyBtn')}
 									</button>
 								</div>
 
 								{/* 扫码快速填入组件 */}
 								<div className="pt-2">
 									<div className="text-[11px] text-slate-400 mb-2">
-										或者通过摄像头直接扫描凭证二维码：
+										{t('playground.read.scanningHint')}:
 									</div>
 									<QrScannerView onDetected={handleScanDetected} />
 								</div>
@@ -318,7 +320,7 @@ export function ReadSection({ initialPasscode = '' }: ReadSectionProps) {
 									<span>Token: {token}</span>
 								</div>
 								<span className="text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
-									凭证已锁定
+									{t('common.success')}
 								</span>
 							</div>
 						)}
@@ -329,7 +331,7 @@ export function ReadSection({ initialPasscode = '' }: ReadSectionProps) {
 						<div className="space-y-4 pt-4 border-t border-slate-800/80">
 							<div className="flex items-center justify-between">
 								<span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-									2. 视觉特征比对解锁
+									2. {t('playground.read.title')}
 								</span>
 								<div className="inline-flex p-0.5 bg-slate-950 border border-slate-800 rounded-xl">
 									<button
@@ -342,7 +344,7 @@ export function ReadSection({ initialPasscode = '' }: ReadSectionProps) {
 										}`}
 									>
 										<Camera className="w-3.5 h-3.5" />
-										摄像头实时流
+										{t('playground.read.scanTab')}
 									</button>
 									<button
 										type="button"
@@ -354,7 +356,7 @@ export function ReadSection({ initialPasscode = '' }: ReadSectionProps) {
 										}`}
 									>
 										<Upload className="w-3.5 h-3.5" />
-										相册/拍照上传
+										{t('common.upload')}
 									</button>
 								</div>
 							</div>
@@ -370,7 +372,7 @@ export function ReadSection({ initialPasscode = '' }: ReadSectionProps) {
 										/>
 										<div className="flex items-center gap-1.5 text-[11px] text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-full border border-indigo-500/20">
 											<Sparkles className="w-3 h-3 animate-spin" />
-											<span>正在抽帧几何校验</span>
+											<span>{t('playground.read.matchingHint')}</span>
 										</div>
 									</div>
 
@@ -400,12 +402,16 @@ export function ReadSection({ initialPasscode = '' }: ReadSectionProps) {
 															: 'bg-emerald-400'
 													}`}
 												/>
-												<span>特征点数: {lastExtractedCount}</span>
+												<span>
+													{t('playground.read.matchingProgress', {
+														count: lastExtractedCount,
+													})}
+												</span>
 											</div>
 											<span className="text-slate-400">
 												{lastExtractedCount < 15
-													? '请对准主体并保持光线充足'
-													: '自动几何单应性比对中'}
+													? t('playground.read.alignObject')
+													: t('playground.read.matchingHint')}
 											</span>
 										</div>
 									</div>
@@ -429,7 +435,7 @@ export function ReadSection({ initialPasscode = '' }: ReadSectionProps) {
 									className="space-y-4"
 								>
 									<ImagePicker
-										label="选择需要比对验证的物理画面"
+										label={t('playground.read.orUploadImage')}
 										previewUrl={previewUrl}
 										onFileSelect={handleFileSelect}
 										disabled={photoMutation.isPending}
@@ -438,12 +444,12 @@ export function ReadSection({ initialPasscode = '' }: ReadSectionProps) {
 									<button
 										type="submit"
 										disabled={!file || photoMutation.isPending}
-										className="w-full py-3.5 px-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-medium rounded-xl transition shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 text-sm"
+										className="w-full py-3.5 px-4 bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-medium rounded-xl transition shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 text-sm"
 									>
 										<KeyRound className="w-4 h-4" />
 										{photoMutation.isPending
-											? '正在比对几何特征...'
-											: '执行比对并解锁密语'}
+											? t('common.processing')
+											: t('playground.read.verifyBtn')}
 									</button>
 								</form>
 							)}
@@ -455,9 +461,9 @@ export function ReadSection({ initialPasscode = '' }: ReadSectionProps) {
 						<div className="p-4 bg-amber-950/40 border border-amber-500/30 rounded-xl text-amber-300 text-xs flex items-start gap-2">
 							<AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
 							<div>
-								<div className="font-semibold">特征比对未通过</div>
+								<div className="font-semibold">{t('common.error')}</div>
 								<p className="text-amber-400/80 mt-0.5">
-									未能匹配到足够的几何一致性内点。请确保光线充足、将镜头正对目标画面并避免严重反光。
+									{t('playground.read.alignObject')}
 								</p>
 							</div>
 						</div>
@@ -471,7 +477,7 @@ export function ReadSection({ initialPasscode = '' }: ReadSectionProps) {
 					)}
 
 					{photoMutation.isPending && (
-						<ProcessingState message={progressMsg || '正在处理中...'} />
+						<ProcessingState message={progressMsg || t('common.processing')} />
 					)}
 				</div>
 			)}

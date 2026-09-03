@@ -1,0 +1,19 @@
+{
+	"brandTitle": "VisionPass",
+	"brandSubtitle": "视觉密语",
+	"brandTagline": "物理万物即数字密钥 · 零原图上云端侧密码系统",
+	"home": "愿景首页",
+	"playground": "体验工坊",
+	"docs": "技术白皮书",
+	"github": "GitHub 源码",
+	"openMenu": "打开菜单",
+	"closeMenu": "关闭菜单",
+	"language": "语言",
+	"quickStart": "快速体验",
+	"switchLanguage": "切换语言",
+	"footer": {
+		"copyright": "VisionPass 视觉密语. 基于 MIT License 开源.",
+		"builtWith": "基于 TanStack Start + OpenCV.js WASM + 纯 TS RANSAC 算法构建",
+		"zeroPrivacy": "100% 浏览器端特征提取，原始图像永不上云"
+	}
+}

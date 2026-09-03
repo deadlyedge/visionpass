@@ -11,6 +11,7 @@ import {
 	Zap,
 } from 'lucide-react'
 import { z } from 'zod'
+import { useI18n } from '../i18n'
 import { CONSTANTS } from '../lib/constants'
 
 const docsSearchSchema = z.object({
@@ -45,6 +46,7 @@ function GithubIcon({ className = 'w-4 h-4' }: { className?: string }) {
 export function DocsPage() {
 	const search = Route.useSearch()
 	const navigate = useNavigate({ from: Route.fullPath })
+	const { t } = useI18n()
 	const currentSection = search.section || 'vision'
 
 	const setSection = (
@@ -67,16 +69,15 @@ export function DocsPage() {
 						<div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs font-medium text-indigo-400">
 							<BookOpen className="w-3.5 h-3.5" />
 							<span>
-								{CONSTANTS.APP.NAME} 开发者与技术白皮书 ({CONSTANTS.APP.VERSION}
-								)
+								{CONSTANTS.APP.NAME} · {t('docs.headerBadge')} (
+								{CONSTANTS.APP.VERSION})
 							</span>
 						</div>
 						<h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-							从物理愿景到数学算法与全栈实现
+							{t('docs.title')}
 						</h1>
 						<p className="text-slate-400 text-sm max-w-2xl">
-							深入了解 VisionPass 如何通过端侧视觉特征提取、RANSAC
-							几何一致性校验与现代全栈架构，打造隐私优先的物理密语系统。
+							{t('docs.subtitle')}
 						</p>
 					</div>
 
@@ -98,7 +99,7 @@ export function DocsPage() {
 				{/* Sidebar Navigation */}
 				<div className="lg:col-span-3 sticky top-20 bg-slate-950/80 backdrop-blur-md border border-slate-800/80 rounded-2xl p-3 space-y-1 z-10">
 					<div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-						文档章节导航
+						{t('docs.headerBadge')}
 					</div>
 
 					<button
@@ -111,7 +112,7 @@ export function DocsPage() {
 						}`}
 					>
 						<Shield className="w-4 h-4 text-indigo-400 shrink-0" />
-						<span>1. 愿景与安全哲学</span>
+						<span>{t('docs.sections.vision.nav')}</span>
 					</button>
 
 					<button
@@ -124,7 +125,7 @@ export function DocsPage() {
 						}`}
 					>
 						<Zap className="w-4 h-4 text-amber-400 shrink-0" />
-						<span>2. 核心算法与数学原理</span>
+						<span>{t('docs.sections.algorithm.nav')}</span>
 					</button>
 
 					<button
@@ -137,7 +138,7 @@ export function DocsPage() {
 						}`}
 					>
 						<Cpu className="w-4 h-4 text-cyan-400 shrink-0" />
-						<span>3. 全栈技术选型</span>
+						<span>{t('docs.sections.techStack.nav')}</span>
 					</button>
 
 					<button
@@ -150,7 +151,7 @@ export function DocsPage() {
 						}`}
 					>
 						<Layers className="w-4 h-4 text-emerald-400 shrink-0" />
-						<span>4. 代码架构与时序图</span>
+						<span>{t('docs.sections.architecture.nav')}</span>
 					</button>
 				</div>
 

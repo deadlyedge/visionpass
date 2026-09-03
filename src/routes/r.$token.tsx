@@ -16,6 +16,7 @@ import { KeypointsCanvas } from '../components/viewer/keypoints-canvas'
 import { SecretViewer } from '../components/viewer/secret-viewer'
 import { useCameraStream } from '../hooks/use-camera-stream'
 import { useLiveOrbMatcher } from '../hooks/use-live-orb-matcher'
+import { useI18n } from '../i18n'
 import { extractOrbFeatures } from '../lib/extract-orb'
 import type { FeaturePayloadV1 } from '../lib/feature-schema'
 import {
@@ -33,6 +34,7 @@ function ReadRouteComponent() {
 }
 
 export function ReadPage({ token }: { token: string }) {
+	const { t } = useI18n()
 	const [inputMode, setInputMode] = useState<'camera' | 'photo'>('camera')
 	const [file, setFile] = useState<File | null>(null)
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -198,7 +200,7 @@ export function ReadPage({ token }: { token: string }) {
 	if (isCheckingMeta) {
 		return (
 			<div className="max-w-xl mx-auto py-20 px-4 text-center">
-				<ProcessingState message="正在验证凭证有效性..." />
+				<ProcessingState message={t('r.statusChecking')} />
 			</div>
 		)
 	}
@@ -211,17 +213,17 @@ export function ReadPage({ token }: { token: string }) {
 						<ShieldAlert className="w-8 h-8" />
 					</div>
 					<h2 className="text-xl font-bold text-slate-100">
-						凭证不存在或链接已失效
+						{t('r.notFound')}
 					</h2>
 					<p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto">
-						未找到与该 Token 匹配的有效凭证，可能链接已超时过期或已被撤回。
+						{t('r.notFoundDesc')}
 					</p>
 					<div className="pt-2">
 						<a
-							href="/read"
+							href="/playground?tab=verify"
 							className="inline-block px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium rounded-xl transition border border-slate-700"
 						>
-							手动输入口令或重新扫码
+							{t('r.goToPlayground')}
 						</a>
 					</div>
 				</div>
@@ -235,13 +237,13 @@ export function ReadPage({ token }: { token: string }) {
 			<div className="text-center space-y-2">
 				<div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-medium text-emerald-400 mb-1">
 					<Lock className="w-3.5 h-3.5" />
-					<span>视觉凭证校验就绪</span>
+					<span>VisionPass · {t('r.title')}</span>
 				</div>
 				<h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-					对准画面解锁密语
+					{t('r.title')}
 				</h1>
 				<p className="text-slate-400 text-xs sm:text-sm max-w-md mx-auto">
-					将摄像头对准创建者参考画面（或上传相册照片），几何一致性校验通过后即可查看密语。
+					{t('r.subtitle')}
 				</p>
 			</div>
 
@@ -264,7 +266,7 @@ export function ReadPage({ token }: { token: string }) {
 							}`}
 						>
 							<Camera className="w-3.5 h-3.5" />
-							<span>实时摄像头对准</span>
+							<span>{t('r.inputModeCamera')}</span>
 						</button>
 						<button
 							type="button"
@@ -279,7 +281,7 @@ export function ReadPage({ token }: { token: string }) {
 							}`}
 						>
 							<FileImage className="w-3.5 h-3.5" />
-							<span>相册单张验证</span>
+							<span>{t('r.inputModeImage')}</span>
 						</button>
 					</div>
 
@@ -330,8 +332,7 @@ export function ReadPage({ token }: { token: string }) {
 										}`}
 									/>
 									<span>
-										检测到特征点: {lastExtractedCount}
-										{lastExtractedCount < 20 ? ' (请靠近主体)' : ' (比对中)'}
+										{t('r.matchingLive', { count: lastExtractedCount })}
 									</span>
 								</div>
 
@@ -361,9 +362,7 @@ export function ReadPage({ token }: { token: string }) {
 							{verificationFailed && (
 								<div className="p-3 bg-amber-950/40 border border-amber-500/30 rounded-xl text-amber-300 text-xs flex items-center gap-2">
 									<AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-									<span>
-										未识别到匹配的主体，请将镜头保持平稳、对准画面中心重试
-									</span>
+									<span>{t('r.alignPrompt')}</span>
 								</div>
 							)}
 						</div>
@@ -379,7 +378,7 @@ export function ReadPage({ token }: { token: string }) {
 							className="space-y-6"
 						>
 							<ImagePicker
-								label="上传待验证的画面图片"
+								label={t('r.inputModeImage')}
 								previewUrl={previewUrl}
 								onFileSelect={handleFileSelect}
 								disabled={photoMutation.isPending}
@@ -389,12 +388,9 @@ export function ReadPage({ token }: { token: string }) {
 								<div className="p-4 bg-amber-950/40 border border-amber-500/30 rounded-xl text-amber-300 text-xs space-y-1">
 									<div className="font-semibold flex items-center gap-2">
 										<AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-										<span>验证未通过</span>
+										<span>{t('common.error')}</span>
 									</div>
-									<p className="text-amber-400/80">
-										图片特征未能通过 RANSAC
-										几何一致性校验，请确保画面主体完整清晰。
-									</p>
+									<p className="text-amber-400/80">{t('r.alignPrompt')}</p>
 								</div>
 							)}
 
@@ -406,7 +402,9 @@ export function ReadPage({ token }: { token: string }) {
 							)}
 
 							{photoMutation.isPending && (
-								<ProcessingState message={progressMsg || '正在验证...'} />
+								<ProcessingState
+									message={progressMsg || t('common.processing')}
+								/>
 							)}
 
 							<button
@@ -415,7 +413,9 @@ export function ReadPage({ token }: { token: string }) {
 								className="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-medium rounded-xl transition shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 text-sm"
 							>
 								<KeyRound className="w-4 h-4" />
-								校验特征并解锁密语
+								{photoMutation.isPending
+									? t('common.processing')
+									: t('r.title')}
 							</button>
 						</form>
 					)}

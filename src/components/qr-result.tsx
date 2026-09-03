@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import QRCode from 'qrcode'
 import { useEffect, useState } from 'react'
+import { useI18n } from '../i18n'
 import { PosterGenerator } from './poster/poster-generator'
 
 export interface QrResultProps {
@@ -24,6 +25,7 @@ export function QrResult({
 	referenceImageUrl,
 	onReset,
 }: QrResultProps) {
+	const { t } = useI18n()
 	const [qrDataUrl, setQrDataUrl] = useState<string>('')
 	const [copied, setCopied] = useState(false)
 	const [showPosterMode, setShowPosterMode] = useState(false)
@@ -77,7 +79,7 @@ export function QrResult({
 						}`}
 					>
 						<QrCode className="w-3.5 h-3.5" />
-						<span>独立凭证二维码</span>
+						<span>{t('playground.result.directUrl')}</span>
 					</button>
 					<button
 						type="button"
@@ -89,7 +91,7 @@ export function QrResult({
 						}`}
 					>
 						<Palette className="w-3.5 h-3.5" />
-						<span>生成带 QR 分享海报</span>
+						<span>{t('playground.result.qrPosterBtn')}</span>
 					</button>
 				</div>
 			)}
@@ -105,13 +107,16 @@ export function QrResult({
 					<div className="text-center space-y-1">
 						<div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-2">
 							<span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-							凭证已激活 · 密语已安全封存
+							{t('playground.create.extractSuccess')}
 						</div>
 						<h2 className="text-xl font-bold text-slate-100">
-							视觉凭证创建成功
+							{t('playground.result.title')}
+						</h2>
+						<h2 className="text-xl font-bold text-slate-100">
+							{t('playground.result.title')}
 						</h2>
 						<p className="text-xs text-slate-400 max-w-sm mx-auto">
-							二维码内仅包含专属口令（去中心化设计），使用扫码器对准即可快速载入。
+							{t('playground.result.passcodeDesc')}
 						</p>
 					</div>
 
@@ -139,9 +144,11 @@ export function QrResult({
 					<div className="space-y-2">
 						<div className="flex items-center justify-between text-xs text-slate-400">
 							<label htmlFor="passcode-display" className="font-medium">
-								专属展示口令
+								{t('playground.result.passcodeTitle')}
 							</label>
-							<span className="text-slate-500">可直接复制发送给好友输入</span>
+							<span className="text-slate-500">
+								{t('playground.result.passcodeDesc')}
+							</span>
 						</div>
 						<div className="flex items-center gap-2">
 							<input
@@ -159,12 +166,14 @@ export function QrResult({
 								{copied ? (
 									<>
 										<Check className="w-3.5 h-3.5 text-emerald-400" />
-										<span className="text-emerald-400">已复制</span>
+										<span className="text-emerald-400">
+											{t('common.copied')}
+										</span>
 									</>
 								) : (
 									<>
 										<Copy className="w-3.5 h-3.5 text-slate-400" />
-										<span>复制代码</span>
+										<span>{t('playground.result.copyPasscode')}</span>
 									</>
 								)}
 							</button>
@@ -179,7 +188,7 @@ export function QrResult({
 							className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition flex items-center justify-center gap-2 border border-slate-700"
 						>
 							<Download className="w-3.5 h-3.5 text-indigo-400" />
-							保存二维码图片
+							{t('common.download')} QR
 						</button>
 						<a
 							href={readUrl}
@@ -188,7 +197,7 @@ export function QrResult({
 							className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition flex items-center justify-center gap-2 border border-slate-700"
 						>
 							<ExternalLink className="w-3.5 h-3.5 text-indigo-400" />
-							立即前往验证
+							{t('playground.result.directUrl')}
 						</a>
 					</div>
 				</>
@@ -202,7 +211,7 @@ export function QrResult({
 					className="w-full py-2.5 text-xs text-slate-400 hover:text-slate-200 transition flex items-center justify-center gap-1.5"
 				>
 					<RotateCcw className="w-3.5 h-3.5" />
-					创建下一个视觉凭证
+					{t('playground.result.createNew')}
 				</button>
 			</div>
 		</div>

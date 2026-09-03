@@ -3,6 +3,7 @@ import { KeyRound, Shield, Sparkles } from 'lucide-react'
 import { z } from 'zod'
 import { CreateSection } from '../components/playground/create-section'
 import { ReadSection } from '../components/playground/read-section'
+import { useI18n } from '../i18n'
 
 const playgroundSearchSchema = z.object({
 	tab: z.enum(['create', 'verify']).optional().default('create'),
@@ -17,6 +18,7 @@ export const Route = createFileRoute('/playground')({
 export function PlaygroundPage() {
 	const search = Route.useSearch()
 	const navigate = useNavigate({ from: Route.fullPath })
+	const { t } = useI18n()
 	const activeTab = search.tab || 'create'
 
 	const handleTabChange = (newTab: 'create' | 'verify') => {
@@ -34,13 +36,13 @@ export function PlaygroundPage() {
 			<div className="text-center space-y-3">
 				<div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs font-medium text-indigo-400">
 					<Shield className="w-3.5 h-3.5" />
-					<span>VisionPass 交互演练场 · 双模式支持</span>
+					<span>VisionPass · {t('playground.title')}</span>
 				</div>
 				<h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-					视觉密语体验工坊
+					{t('playground.title')}
 				</h1>
 				<p className="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto">
-					在这里你可以立即体验提取实体画面的视觉特征封存密语，或是通过连续摄像头扫描比对物理画面以解锁密语。
+					{t('playground.subtitle')}
 				</p>
 			</div>
 
@@ -57,7 +59,7 @@ export function PlaygroundPage() {
 						}`}
 					>
 						<Sparkles className="w-4 h-4" />
-						<span>1. 创建视觉凭证</span>
+						<span>{t('playground.tabs.create')}</span>
 					</button>
 
 					<button
@@ -70,7 +72,7 @@ export function PlaygroundPage() {
 						}`}
 					>
 						<KeyRound className="w-4 h-4" />
-						<span>2. 扫码与实时比对解锁</span>
+						<span>{t('playground.tabs.verify')}</span>
 					</button>
 				</div>
 			</div>

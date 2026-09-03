@@ -1,0 +1,20 @@
+{
+	"confirm": "Confirm",
+	"cancel": "Cancel",
+	"copy": "Copy",
+	"copied": "Copied",
+	"retry": "Retry",
+	"download": "Download",
+	"upload": "Upload",
+	"back": "Back",
+	"close": "Close",
+	"save": "Save",
+	"loading": "Loading...",
+	"processing": "Processing...",
+	"success": "Success",
+	"error": "Error",
+	"networkError": "Network request failed, please try again later",
+	"cameraPermissionDenied": "Cannot access camera. Please allow camera permissions in your browser",
+	"dragAndDrop": "Drag & drop or click to upload",
+	"supportImageFormat": "Supports PNG, JPG, JPEG. High-contrast, rich-textured physical objects recommended"
+}

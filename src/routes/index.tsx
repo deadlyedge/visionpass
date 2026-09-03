@@ -10,6 +10,7 @@ import {
 	Sparkles,
 	Zap,
 } from 'lucide-react'
+import { useI18n } from '../i18n'
 import { CONSTANTS } from '../lib/constants'
 
 export const Route = createFileRoute('/')({
@@ -34,6 +35,8 @@ function GithubIcon({ className = 'w-4 h-4' }: { className?: string }) {
 }
 
 export function LandingPage() {
+	const { t } = useI18n()
+
 	return (
 		<div className="w-full space-y-20 sm:space-y-28 py-10 sm:py-16">
 			{/* HERO SECTION */}
@@ -45,23 +48,17 @@ export function LandingPage() {
 				<div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs font-medium text-indigo-300 backdrop-blur-md shadow-sm">
 					<Sparkles className="w-3.5 h-3.5 text-indigo-400" />
 					<span>
-						{CONSTANTS.APP.NAME} {CONSTANTS.APP.VERSION} · 全栈物理密语系统
+						{CONSTANTS.APP.NAME} {CONSTANTS.APP.VERSION} · {t('home.badge')}
 					</span>
 				</div>
 
 				{/* Main Title */}
 				<div className="space-y-4 max-w-4xl mx-auto">
 					<h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.15]">
-						让现实世界的万物
-						<br />
-						<span className="bg-linear-to-r from-indigo-400 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
-							成为你的数字密钥
-						</span>
+						{t('home.title')}
 					</h1>
 					<p className="text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed">
-						无需在物体上张贴任何二维码或标记。基于端侧 Web Worker
-						视觉特征提取与服务端 RANSAC
-						单应性几何一致性检验，实现真正的零隐私上云交互。
+						{t('home.description')}
 					</p>
 				</div>
 
@@ -73,7 +70,7 @@ export function LandingPage() {
 						className="w-full sm:w-auto px-7 py-3.5 bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-2xl transition-all duration-200 shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 text-sm group"
 					>
 						<Sparkles className="w-4 h-4 text-indigo-200 group-hover:rotate-12 transition-transform" />
-						<span>立即体验演练场 (Playground)</span>
+						<span>{t('home.enterPlayground')}</span>
 						<ArrowRight className="w-4 h-4 ml-0.5 group-hover:translate-x-1 transition-transform" />
 					</Link>
 
@@ -83,7 +80,7 @@ export function LandingPage() {
 						className="w-full sm:w-auto px-6 py-3.5 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-500 text-slate-200 hover:text-white font-medium rounded-2xl transition duration-200 flex items-center justify-center gap-2 text-sm"
 					>
 						<BookOpen className="w-4 h-4 text-slate-400" />
-						<span>探索架构与算法白皮书</span>
+						<span>{t('home.exploreDocs')}</span>
 					</Link>
 
 					<a
@@ -93,7 +90,7 @@ export function LandingPage() {
 						className="w-full sm:w-auto px-5 py-3.5 bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white font-medium rounded-2xl transition duration-200 flex items-center justify-center gap-2 text-sm"
 					>
 						<GithubIcon className="w-4 h-4" />
-						<span>GitHub 源码</span>
+						<span>GitHub</span>
 					</a>
 				</div>
 			</section>
@@ -105,10 +102,10 @@ export function LandingPage() {
 						THE PARADIGM SHIFT
 					</div>
 					<h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-						为什么我们需要“视觉密语”？
+						{t('home.features.title')}
 					</h2>
 					<p className="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto">
-						传统密码容易遗忘，二维码容易被截屏滥发。物理物体的独特空间纹理提供了不可篡改的现场凭据。
+						{t('home.features.subtitle')}
 					</p>
 				</div>
 
@@ -119,11 +116,10 @@ export function LandingPage() {
 							<Shield className="w-5 h-5" />
 						</div>
 						<h3 className="text-base font-bold text-white">
-							零原图上云与隐私隔离
+							{t('home.features.f2Title')}
 						</h3>
 						<p className="text-xs text-slate-400 leading-relaxed">
-							绝不将用户相片上传至云端服务器。图片仅在浏览器端独立 Web Worker
-							中提取 ORB 数学特征，从根源上杜绝隐私照片泄漏风险。
+							{t('home.features.f2Desc')}
 						</p>
 					</div>
 
@@ -133,10 +129,10 @@ export function LandingPage() {
 							<Camera className="w-5 h-5" />
 						</div>
 						<h3 className="text-base font-bold text-white">
-							物体即密钥 (Object as Key)
+							{t('home.features.f1Title')}
 						</h3>
 						<p className="text-xs text-slate-400 leading-relaxed">
-							无论是特定角度的纪念相框、一幅手绘插画、还是实体包装盒，物体天然的灰度梯度与微观几何就是解开密语的专属物理锁。
+							{t('home.features.f1Desc')}
 						</p>
 					</div>
 
@@ -146,11 +142,10 @@ export function LandingPage() {
 							<Lock className="w-5 h-5" />
 						</div>
 						<h3 className="text-base font-bold text-white">
-							RANSAC 空间几何内点检验
+							{t('home.features.f3Title')}
 						</h3>
 						<p className="text-xs text-slate-400 leading-relaxed">
-							结合 Lowe's 比值过滤与 2D 单应性矩阵（Homography）拟合，纯
-							TypeScript 高性能过滤杂乱背景与低劣错配，抗纹理欺骗。
+							{t('home.features.f3Desc')}
 						</p>
 					</div>
 				</div>
@@ -174,7 +169,7 @@ export function LandingPage() {
 							search={{ section: 'tech-stack' }}
 							className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 shrink-0 font-medium"
 						>
-							查看技术选型细节 →
+							{t('home.exploreDocs')} →
 						</Link>
 					</div>
 
@@ -268,11 +263,10 @@ export function LandingPage() {
 			<section className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6">
 				<div className="p-8 sm:p-12 bg-linear-to-br from-indigo-950/50 via-slate-900/90 to-violet-950/50 border border-indigo-500/30 rounded-3xl space-y-6 backdrop-blur-md">
 					<h2 className="text-2xl sm:text-3xl font-black text-white">
-						准备好开启您的视觉密语体验了吗？
+						{t('home.cta.title')}
 					</h2>
 					<p className="text-slate-400 text-xs sm:text-sm max-w-lg mx-auto">
-						无需注册，完全开源。在 Playground
-						中体验两张照片之间的数学特征碰撞与安全解密。
+						{t('home.cta.subtitle')}
 					</p>
 					<div className="flex flex-wrap items-center justify-center gap-4">
 						<Link
@@ -281,7 +275,7 @@ export function LandingPage() {
 							className="px-8 py-3.5 bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-medium rounded-xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center gap-2"
 						>
 							<Sparkles className="w-4 h-4" />
-							<span>进入演练场 (Playground)</span>
+							<span>{t('home.cta.btn')}</span>
 						</Link>
 						<a
 							href={CONSTANTS.APP.GITHUB_REPO_URL}
@@ -290,7 +284,7 @@ export function LandingPage() {
 							className="px-6 py-3.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-medium rounded-xl text-sm transition flex items-center gap-2"
 						>
 							<GithubIcon className="w-4 h-4" />
-							<span>参与开源共建</span>
+							<span>GitHub</span>
 						</a>
 					</div>
 				</div>

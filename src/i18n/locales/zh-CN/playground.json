@@ -1,0 +1,61 @@
+{
+	"title": "体验工坊",
+	"subtitle": "在此创建你的视觉密语凭证，或调起摄像头扫描并实时比对实物解锁密语。",
+	"tabs": {
+		"create": "创建凭证",
+		"verify": "扫描与比对"
+	},
+	"create": {
+		"title": "创建视觉密语凭证",
+		"desc": "上传一张清晰的实物参考图（书籍封面、画作、摆件等），并输入密语。浏览器将自动在端侧提取 ORB 特征并加密持久化。",
+		"step1": "1. 选择实物参考图",
+		"step2": "2. 输入密语与说明",
+		"secretLabel": "密语内容 (加密存储)",
+		"secretPlaceholder": "输入你需要保护的文本、密码或私密留言...",
+		"memoLabel": "凭证备注 (仅本地或可选展示)",
+		"memoPlaceholder": "例如：咖啡馆桌角涂鸦 / 书房第三本书",
+		"extractBtn": "提取特征并生成凭证",
+		"extracting": "正在端侧提取特征并提交...",
+		"extractSuccess": "凭证创建成功！",
+		"keypointsCount": "已提取 {count} 个 ORB 关键特征点",
+		"tip": "提示：尽量保证参考图光照充足、纹理清晰。零原图上云，原始图片仅在本地用于计算。"
+	},
+	"result": {
+		"title": "凭证已就绪",
+		"passcodeTitle": "易读口令 (Passcode)",
+		"passcodeDesc": "接收方可直接输入此口令或扫描下方二维码快速进入校验流。",
+		"directUrl": "直达读取 URL",
+		"qrPosterBtn": "生成/自定义分享海报",
+		"copyPasscode": "复制口令",
+		"copyUrl": "复制链接",
+		"createNew": "创建新的凭证"
+	},
+	"poster": {
+		"title": "自定义分享海报",
+		"desc": "可自由拖拽调整二维码位置与大小，并一键导出高质量分享图片。",
+		"sizeLabel": "二维码尺寸",
+		"opacityLabel": "不透明度",
+		"exportBtn": "导出高清海报",
+		"exporting": "正在合成海报...",
+		"downloadPoster": "下载海报图片",
+		"closePoster": "关闭海报设计器"
+	},
+	"read": {
+		"title": "扫描与实物比对",
+		"subtitle": "通过口令或二维码关联凭证，调起摄像头对准实物完成特征几何比对与实时解密。",
+		"scanTab": "摄像头秒扫 (推荐)",
+		"manualTab": "手动输入口令",
+		"passcodePlaceholder": "输入 8-12 位 Base32 口令 (例如：7K2N9P4M)",
+		"verifyBtn": "确认并开始比对",
+		"scanningHint": "将取景框对准分享海报中的二维码或口令",
+		"matchingHint": "二维码识别成功！请将摄像头对准实体参考物进行特征比对...",
+		"alignObject": "请对准实体参考物",
+		"matchingProgress": "实时比对中... 当前帧特征点: {count}",
+		"unlockedSuccess": "🎉 密语解密成功！",
+		"secretLabel": "解密密语",
+		"tryAgain": "重新扫描/比对",
+		"cameraError": "摄像头启动异常，请检查权限或设备连接",
+		"switchCamera": "切换摄像头",
+		"orUploadImage": "或从相册上传图片比对"
+	}
+}

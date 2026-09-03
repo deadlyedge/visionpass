@@ -1,0 +1,47 @@
+{
+	"headerBadge": "Technical Whitepaper",
+	"title": "VisionPass Developer & Technical Whitepaper",
+	"subtitle": "From physical anchor philosophy and spatial geometric math to full-stack architecture choices and high-concurrency security practices.",
+	"sections": {
+		"vision": {
+			"nav": "1. Vision & Philosophy",
+			"title": "1. Vision & Philosophy: Physical Reality as Digital Key",
+			"p1": "In the digital age, passwords, 2FA tokens, and private keys rely heavily on digital storage or textual memory, making them prone to screenshot theft, phishing, and digital duplication. Traditional physical stickers (like QR codes or RFID tags) are intrusive and easy to replicate.",
+			"p2": "VisionPass introduces a new paradigm: using natural, richly-textured physical objects (artworks, book covers, mechanical plaques, personal keepsakes) as physical anchors to unlock confidential information.",
+			"threeFactors": "Three-Tier Factor Isolation Model:",
+			"factor1": "1. Self-hosted domain: Eliminates centralized censorship and man-in-the-middle attacks;",
+			"factor2": "2. Human-readable Passcode: Used for fast collision-free indexing and addressing;",
+			"factor3": "3. Spatial visual geometry: Verified through ORB descriptors and RANSAC homography constraints."
+		},
+		"algorithm": {
+			"nav": "2. Algorithms & Mathematics",
+			"title": "2. Core Algorithms & Mathematics: ORB & RANSAC Homography",
+			"p1": "The core engineering challenge is: how to reliably verify if the object viewed by the user's camera matches the reference photo across lighting changes, minor deformations, rotations, and perspective shifts.",
+			"orbTitle": "2.1 Client-side FAST + rBRIEF (ORB) Feature Extraction",
+			"orbP1": "Client-side Web Workers execute OpenCV.js WASM: detecting multiscale FAST corner points on image pyramids, calculating intensity centroids for rotational invariance (oFAST), and generating 256-bit (32-byte) binary descriptors (rBRIEF).",
+			"ransacTitle": "2.2 Server-side Hamming KNN + Lowe's Ratio + RANSAC",
+			"ransacP1": "The server employs a pure TypeScript spatial geometric verification engine:",
+			"step1": "1. Hamming KNN search: Fast bitwise Brian Kernighan operations for binary descriptor distances;",
+			"step2": "2. Lowe's Ratio Test: Evaluates closest distance d1 against second-closest d2, filtering matches with d1 < 0.75 * d2 to discard ambiguous texture noise;",
+			"step3": "3. RANSAC 2D Homography Matrix Estimation: Uses DLT Gaussian elimination to iteratively fit perspective transforms and calculate inlier counts.",
+			"matchThreshold": "Evaluation Formula: Verified when Inliers >= 12 and Inliers / GoodMatches >= 0.45."
+		},
+		"techStack": {
+			"nav": "3. Full-Stack Tech Stack",
+			"title": "3. Full-Stack Tech Stack & Architectural Principles",
+			"tanstackStart": "TanStack Start Framework: Unifies Server Functions with client routes for 100% end-to-end type safety without boilerplate REST API glue code.",
+			"pureTsServer": "Pure TypeScript Server Matcher: Zero Node-gyp or Python dependencies, delivering sub-5ms cold starts in Nitro / Edge environments.",
+			"opencvWasm": "Isolated OpenCV.js WASM Worker: All image decoding, resizing (long edge 640px), and ORB extractions run in Web Workers, maintaining smooth 60fps UI.",
+			"aeadCrypto": "AEAD Encryption & Salted Hashes: Tokens are stored as HMAC-SHA-256 hashes; secrets are encrypted at rest with AES-256-GCM and decrypted in-memory only upon geometric inlier verification."
+		},
+		"architecture": {
+			"nav": "4. Sequence & Architecture",
+			"title": "4. End-to-End Sequence & Engineering Practices",
+			"p1": "The diagram illustrates the full lifecycle from credential creation to continuous camera stream verification:",
+			"seq1": "1. Client snaps/selects photo -> Web Worker extracts ORB features -> calls createCredentialFn for persistence;",
+			"seq2": "2. User receives human-readable Passcode and shareable poster with draggable QR overlay;",
+			"seq3": "3. Recipient opens camera, BarcodeDetector + jsQR captures passcode in milliseconds;",
+			"seq4": "4. Camera session continues seamlessly, streaming frames to verifyCredentialFn until RANSAC inliers reach the threshold."
+		}
+	}
+}

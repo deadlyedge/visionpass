@@ -1,0 +1,20 @@
+{
+	"confirm": "确认",
+	"cancel": "取消",
+	"copy": "复制",
+	"copied": "已复制",
+	"retry": "重试",
+	"download": "下载",
+	"upload": "上传",
+	"back": "返回",
+	"close": "关闭",
+	"save": "保存",
+	"loading": "加载中...",
+	"processing": "处理中...",
+	"success": "成功",
+	"error": "错误",
+	"networkError": "网络请求异常，请稍后重试",
+	"cameraPermissionDenied": "无法访问摄像头，请在浏览器中允许摄像头权限",
+	"dragAndDrop": "拖拽或点击上传",
+	"supportImageFormat": "支持 PNG, JPG, JPEG 格式，建议清晰度高、纹理丰富的真实物体"
+}

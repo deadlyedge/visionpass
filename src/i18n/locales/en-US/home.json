@@ -1,0 +1,34 @@
+{
+	"badge": "Open Source Vision Cipher Engine",
+	"title": "Turn Physical Reality into Your Digital Key",
+	"description": "No tedious passwords to remember, no screenshot leaks to worry about. Powered by client-side ORB feature extraction and server-side RANSAC homography geometric verification, VisionPass enables zero-knowledge physical visual credentials.",
+	"enterPlayground": "Enter Playground",
+	"exploreDocs": "Explore Whitepaper",
+	"features": {
+		"title": "Three Core Pillars",
+		"subtitle": "Bridging Trust Between Physical and Digital Realities",
+		"f1Title": "Physical Anchor Decryption",
+		"f1Desc": "Use artwork, book covers, custom figurines, or physical textures as the unique hardware key. Cannot be decrypted by textual sharing alone.",
+		"f2Title": "Zero-Knowledge Privacy",
+		"f2Desc": "Image decoding and ORB descriptor extraction run 100% inside client Web Workers. Servers only receive compact math vectors, never raw images.",
+		"f3Title": "Three-Tier Factor Isolation",
+		"f3Desc": "Self-hosted domain + Human-readable Passcode + RANSAC geometric homography inliers (>= 12). All three factors required to unlock."
+	},
+	"workflow": {
+		"title": "Streamlined & Robust Workflow",
+		"subtitle": "From a physical anchor to millisecond real-time unlocking",
+		"step1": "1. Snap Physical Anchor",
+		"step1Desc": "Select a textured physical object and enter the confidential secret message.",
+		"step2": "2. Client-Side Extraction",
+		"step2Desc": "OpenCV.js WASM extracts up to 500 ORB keypoints and 32-byte binary descriptors in the browser.",
+		"step3": "3. Share Poster",
+		"step3Desc": "Generate a shareable poster with draggable QR overlay. The QR code encodes only the Passcode.",
+		"step4": "4. Scan & Align to Unlock",
+		"step4Desc": "The recipient scans the code and aligns the camera with the object. RANSAC verifies geometry and reveals the secret instantly."
+	},
+	"cta": {
+		"title": "Experience Visual Passwords Today",
+		"subtitle": "Unlock new paradigms for physical geocaching, confidential dropboxes, and anti-counterfeiting.",
+		"btn": "Launch Playground Now"
+	}
+}

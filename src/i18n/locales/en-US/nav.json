@@ -1,0 +1,19 @@
+{
+	"brandTitle": "VisionPass",
+	"brandSubtitle": "Vision Cipher",
+	"brandTagline": "Physical Reality as Digital Key · Zero-Knowledge Vision Cipher System",
+	"home": "Home",
+	"playground": "Playground",
+	"docs": "Whitepaper",
+	"github": "GitHub Source",
+	"openMenu": "Open Menu",
+	"closeMenu": "Close Menu",
+	"language": "Language",
+	"quickStart": "Try Playground",
+	"switchLanguage": "Switch Language",
+	"footer": {
+		"copyright": "VisionPass. Open source under MIT License.",
+		"builtWith": "Powered by TanStack Start + OpenCV.js WASM + Pure TS RANSAC Homography",
+		"zeroPrivacy": "100% Client-side feature extraction. Raw images never leave your device."
+	}
+}

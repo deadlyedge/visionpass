@@ -1,5 +1,6 @@
 import { Upload } from 'lucide-react'
 import { useRef } from 'react'
+import { useI18n } from '../i18n'
 
 interface ImagePickerProps {
 	label: string
@@ -14,6 +15,7 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
 	onFileSelect,
 	disabled = false,
 }) => {
+	const { t } = useI18n()
 	const fileInputRef = useRef<HTMLInputElement>(null)
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,7 +66,7 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
 							className="max-h-60 rounded-lg object-contain shadow-md"
 						/>
 						<div className="mt-3 text-xs text-slate-400">
-							点击或拖拽以更换图片
+							{t('common.dragAndDrop')}
 						</div>
 					</div>
 				) : (
@@ -74,10 +76,10 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
 						</div>
 						<div>
 							<p className="text-sm font-medium text-slate-200">
-								点击选择图片或拖拽图片至此处
+								{t('common.dragAndDrop')}
 							</p>
 							<p className="text-xs text-slate-500 mt-1">
-								支持 PNG, JPG, WebP 格式（推荐具有丰富纹理结构的图片）
+								{t('common.supportImageFormat')}
 							</p>
 						</div>
 					</div>

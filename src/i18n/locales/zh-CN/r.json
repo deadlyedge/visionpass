@@ -1,0 +1,15 @@
+{
+	"title": "直达凭证验证",
+	"subtitle": "调起摄像头或上传图片，对准实体参考物完成空间几何特征比对与密语实时解密。",
+	"statusChecking": "正在检查凭证有效性...",
+	"notFound": "凭证不存在或已过期",
+	"notFoundDesc": "该凭证可能已被删除、过期或 Token 无效，请核对链接。",
+	"inputModeCamera": "实时摄像头对准",
+	"inputModeImage": "相册单图比对",
+	"alignPrompt": "请将摄像头对准实体参考物",
+	"matchingLive": "正在实时比对中... 提取到 {count} 个特征点",
+	"decryptSuccess": "🎉 密语解密成功！",
+	"secretLabel": "解密所得密语",
+	"returnHome": "返回愿景首页",
+	"goToPlayground": "前往体验工坊"
+}

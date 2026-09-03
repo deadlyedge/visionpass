@@ -1,0 +1,47 @@
+{
+	"headerBadge": "技术与算法白皮书",
+	"title": "VisionPass 开发者与技术白皮书",
+	"subtitle": "从物理世界愿景、空间几何与特征提取数学公式，到全栈架构选型与高并发安全工程实践全景解析。",
+	"sections": {
+		"vision": {
+			"nav": "1. 愿景与哲学",
+			"title": "一、愿景与核心哲学：“物理万物即数字密钥”",
+			"p1": "在数字化时代，密码、2FA 与私钥常常依赖于数字存储或文本记忆，极易遭受截图截取、社交工程学欺诈与在线复制。传统物理标签（如粘贴的二维码或 RFID）不仅具有破坏性，而且极易被直接翻拍复制。",
+			"p2": "VisionPass 颠覆了传统的认证范式，将真实世界中天然存在、具有丰富微观纹理与几何刚性的实体物品（艺术画作、书籍封面、机械铭牌、私人物件等）作为解锁私密信息的物理锚点。",
+			"threeFactors": "三因子安全隔离体系：",
+			"factor1": "1. 自部署独立域名：杜绝中心化审查与中间人劫持；",
+			"factor2": "2. 易读短口令 (Passcode)：用于防碰撞索引与快速寻址；",
+			"factor3": "3. 实体物体的空间视觉特征：由 ORB 算子与 RANSAC 空间单应性几何约束共同验证。"
+		},
+		"algorithm": {
+			"nav": "2. 核心算法与数学",
+			"title": "二、核心算法与数学原理：ORB 与 RANSAC 几何一致性",
+			"p1": "系统的核心挑战在于：如何在光照变化、轻微形变、旋转与视角倾斜下，准确辨别用户拍摄的物体与原参考图是否一致，同时抵御翻拍与伪造攻击。",
+			"orbTitle": "2.1 端侧 FAST + rBRIEF (ORB) 特征抽取",
+			"orbP1": "客户端 Web Worker 独立线程内调用 OpenCV.js WASM 模块：首先通过 FAST 算法在图像金字塔多尺度空间检测角点，计算图像局部灰度质心以赋予特征点旋转不变性（oFAST），最后生成 256 位（32 字节）紧凑的二值描述子向量（rBRIEF）。",
+			"ransacTitle": "2.2 服务端 Hamming KNN + Lowe's Ratio 检验 + RANSAC",
+			"ransacP1": "服务端采用纯 TypeScript 实现了高精度空间几何匹配引擎：",
+			"step1": "1. 汉明距离最近邻搜索 (Hamming KNN)：利用 Brian Kernighan 位运算快速计算二值描述子间的距离；",
+			"step2": "2. Lowe's Ratio 检验：选取最近邻距离 d1 与次近邻距离 d2，仅当 d1 < 0.75 * d2 时保留为有效特征匹配对，大幅滤除模糊纹理带来的噪点；",
+			"step3": "3. RANSAC 拟合 2D 单应性透视变换矩阵 (Homography Matrix H)：通过 DLT 高斯消元法随机采样拟合空间变换矩阵，计算重投影内点 (Inliers) 数量。",
+			"matchThreshold": "综合评定公式：Inliers >= 12 且 Inliers / GoodMatches >= 0.45 时判定验证通过。"
+		},
+		"techStack": {
+			"nav": "3. 全栈架构选型",
+			"title": "三、全栈技术栈选型与设计原则",
+			"tanstackStart": "TanStack Start 全栈框架：统一服务端函数 (Server Functions) 与客户端路由，实现端到端 100% 类型安全推导，消除传统 REST API 胶水层样板代码。",
+			"pureTsServer": "服务端纯 TypeScript 算法实现：不依赖 Node-gyp 或 Python 进程，在 Nitro / Edge 环境实现 5ms 内极速冷启动与高并发匹配。",
+			"opencvWasm": "端侧 OpenCV.js WASM 线程隔离：所有图像解码、尺寸缩放（最长边 640px）与 ORB 抽取均在 Web Worker 独立线程进行，保障主线程 60fps 丝滑响应。",
+			"aeadCrypto": "AEAD 密文存储与加盐散列：Token 采用 HMAC-SHA-256 加盐落库，密语采用 AES-256-GCM 工业级对称加密落盘，内点达标后服务端在内存中即时解密。"
+		},
+		"architecture": {
+			"nav": "4. 时序全景与实践",
+			"title": "四、端到端时序全景与工程实践",
+			"p1": "下图展示了从凭证创建到多端流式扫描比对的完整生命周期时序：",
+			"seq1": "1. 客户端拍摄/选择图片 -> Web Worker 提取 ORB 特征 -> 调用 createCredentialFn 服务端持久化；",
+			"seq2": "2. 用户获取易读口令及可拖拽二维码海报，将海报分享给接收方；",
+			"seq3": "3. 接收方调起摄像头，BarcodeDetector + jsQR 双引擎秒级捕获口令；",
+			"seq4": "4. 保持摄像头连续会话，流式抽取当前帧特征并通过 verifyCredentialFn 提交比对，内点达标即刻解密密语。"
+		}
+	}
+}

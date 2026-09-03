@@ -1,0 +1,61 @@
+{
+	"title": "Playground",
+	"subtitle": "Create visual cipher credentials or scan and match physical objects in real-time to unlock secret messages.",
+	"tabs": {
+		"create": "Create Credential",
+		"verify": "Scan & Verify"
+	},
+	"create": {
+		"title": "Create Visual Cipher Credential",
+		"desc": "Upload a clear reference photo of a physical object (book cover, painting, figurine, etc.) and enter your secret. Features will be extracted client-side.",
+		"step1": "1. Select Reference Image",
+		"step2": "2. Secret Message & Note",
+		"secretLabel": "Secret Message (Encrypted)",
+		"secretPlaceholder": "Enter the text, password, or confidential note you wish to protect...",
+		"memoLabel": "Memo / Hint (Optional)",
+		"memoPlaceholder": "e.g., Coffee shop table doodle / Book on 3rd shelf",
+		"extractBtn": "Extract Features & Create Credential",
+		"extracting": "Extracting features on client & creating...",
+		"extractSuccess": "Credential Created Successfully!",
+		"keypointsCount": "Extracted {count} ORB Keypoints",
+		"tip": "Tip: Use well-lit, richly-textured objects. Raw images never leave your browser."
+	},
+	"result": {
+		"title": "Credential Ready",
+		"passcodeTitle": "Human-Readable Passcode",
+		"passcodeDesc": "Recipients can enter this passcode or scan the QR code to begin verification.",
+		"directUrl": "Direct Access URL",
+		"qrPosterBtn": "Customize & Export Share Poster",
+		"copyPasscode": "Copy Passcode",
+		"copyUrl": "Copy Link",
+		"createNew": "Create Another Credential"
+	},
+	"poster": {
+		"title": "Customize Share Poster",
+		"desc": "Drag and resize the QR code overlay, then export high-resolution share posters.",
+		"sizeLabel": "QR Code Size",
+		"opacityLabel": "Opacity",
+		"exportBtn": "Export HD Poster",
+		"exporting": "Composing Poster...",
+		"downloadPoster": "Download Poster Image",
+		"closePoster": "Close Poster Designer"
+	},
+	"read": {
+		"title": "Scan & Physical Matching",
+		"subtitle": "Scan a passcode QR code or enter it manually, then point your camera at the physical object to decrypt in real time.",
+		"scanTab": "Camera Scan (Recommended)",
+		"manualTab": "Manual Passcode",
+		"passcodePlaceholder": "Enter 8-12 char Base32 Passcode (e.g. 7K2N9P4M)",
+		"verifyBtn": "Confirm & Start Matching",
+		"scanningHint": "Align viewfinder with the QR code or passcode on the poster",
+		"matchingHint": "QR code recognized! Now align camera with the physical reference object...",
+		"alignObject": "Please align camera with the physical object",
+		"matchingProgress": "Matching in real-time... Current keypoints: {count}",
+		"unlockedSuccess": "🎉 Secret Decrypted Successfully!",
+		"secretLabel": "Decrypted Secret",
+		"tryAgain": "Scan / Match Again",
+		"cameraError": "Camera initialization error. Please check permissions or device.",
+		"switchCamera": "Switch Camera",
+		"orUploadImage": "Or upload an image from album"
+	}
+}

@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { AlertCircle, Sparkles } from 'lucide-react'
 import { useState } from 'react'
+import { useI18n } from '../../i18n'
 import { extractOrbFeatures } from '../../lib/extract-orb'
 import { createCredentialFn } from '../../server/functions/credentials'
 import { ImagePicker } from '../image-picker'
@@ -12,6 +13,7 @@ interface CreateSectionProps {
 }
 
 export function CreateSection({ onSwitchToVerify }: CreateSectionProps) {
+	const { t } = useI18n()
 	const [file, setFile] = useState<File | null>(null)
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 	const [secret, setSecret] = useState<string>('')
@@ -109,7 +111,7 @@ export function CreateSection({ onSwitchToVerify }: CreateSectionProps) {
 				>
 					{/* Image Picker */}
 					<ImagePicker
-						label="1. 选取参考画面 (本地相册或现场拍照)"
+						label={t('playground.create.step1')}
 						previewUrl={previewUrl}
 						onFileSelect={handleFileSelect}
 						disabled={mutation.isPending}
@@ -121,19 +123,19 @@ export function CreateSection({ onSwitchToVerify }: CreateSectionProps) {
 							htmlFor="secret-input"
 							className="block text-xs font-semibold uppercase tracking-wider text-slate-300"
 						>
-							2. 输入需要封存的机密信息
+							{t('playground.create.step2')}
 						</label>
 						<textarea
 							id="secret-input"
 							rows={3}
 							value={secret}
 							onChange={(e) => setSecret(e.target.value)}
-							placeholder="例如：WiFi 密码、金库钥匙位置、惊喜留言、线下寻宝通关密语..."
+							placeholder={t('playground.create.secretPlaceholder')}
 							disabled={mutation.isPending}
 							className="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition resize-none"
 						/>
 						<div className="flex items-center justify-between text-[11px] text-slate-500">
-							<span>由服务端 AES-256-GCM 工业级加密保存</span>
+							<span>{t('playground.create.secretLabel')}</span>
 							<span>{secret.length} 字</span>
 						</div>
 					</div>
@@ -148,30 +150,26 @@ export function CreateSection({ onSwitchToVerify }: CreateSectionProps) {
 
 					{/* Processing Indicator */}
 					{mutation.isPending && (
-						<ProcessingState message={progressMsg || '正在处理特征...'} />
+						<ProcessingState
+							message={progressMsg || t('playground.create.extracting')}
+						/>
 					)}
 
 					{/* Submit Button */}
 					<button
 						type="submit"
 						disabled={!file || !secret.trim() || mutation.isPending}
-						className="w-full py-4 px-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-medium rounded-2xl transition shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 text-sm"
+						className="w-full py-4 px-4 bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-medium rounded-2xl transition shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 text-sm"
 					>
 						<Sparkles className="w-4 h-4" />
 						{mutation.isPending
-							? '正在提取特征与加密...'
-							: '生成视觉密语与海报'}
+							? t('playground.create.extracting')
+							: t('playground.create.extractBtn')}
 					</button>
 
 					<div className="p-4 bg-slate-950/50 border border-slate-800/60 rounded-xl space-y-1.5 text-[11px] text-slate-400">
-						<p className="font-medium text-slate-300">💡 隐私与安全说明：</p>
-						<p>
-							• 原始图片在浏览器内由 Web Worker 提取 ORB
-							特征后即刻销毁，绝不上传云端。
-						</p>
-						<p>
-							•
-							密语内容在数据库内密文落盘，只有在几何特征吻合时由服务端实时解密放行。
+						<p className="font-medium text-slate-300">
+							💡 {t('playground.create.tip')}
 						</p>
 					</div>
 				</form>

@@ -1,7 +1,7 @@
 export const CONSTANTS = {
 	APP: {
 		NAME: 'VisionPass',
-		VERSION: 'v0.6.2',
+		VERSION: 'v0.7.0',
 		GITHUB_REPO_URL: 'https://github.com/deadlyedge/visionpass',
 	},
 	CRYPTO: {

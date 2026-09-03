@@ -14,6 +14,27 @@
 		"f3Title": "Three-Tier Factor Isolation",
 		"f3Desc": "Self-hosted domain + Human-readable Passcode + RANSAC geometric homography inliers (>= 12). All three factors required to unlock."
 	},
+	"techHighlights": {
+		"title": "Robust Full-Stack Architecture & Production Standards",
+		"subtitle": "Stateless, zero C++/Python runtime tech stack designed specifically for Serverless and multi-device platforms.",
+		"viewDetails": "View Tech Stack Details",
+		"tanstackDesc": "React 19 + Nitro + Vite with type-safe isomorphic createServerFn communication.",
+		"opencvDesc": "Web Worker thread isolation keeps UI thread at a silky smooth 60 FPS.",
+		"pureTsTitle": "Pure TS Geometry Engine",
+		"pureTsDesc": "Gaussian elimination homography & Hamming bitwise operations with sub-5ms latency.",
+		"aeadTitle": "AES-256-GCM AEAD",
+		"aeadDesc": "HMAC-salted token index, encrypted at rest, decrypted in-memory only upon geometric inlier verification."
+	},
+	"useCases": {
+		"title": "Explore Endless Possibilities",
+		"subtitle": "REAL WORLD USE CASES",
+		"case1Title": "Physical Geocaching / Escape Rooms",
+		"case1Desc": "Players must visit actual exhibits or physical landmarks to take photos and unlock the next classified clue.",
+		"case2Title": "High-Value Physical Handover Anti-Counterfeit",
+		"case2Desc": "Use security seals or bespoke stamps as physical keys to prevent unauthorized receipt or remote spoofing.",
+		"case3Title": "Exclusive Keepsake Tokens",
+		"case3Desc": "Transform cherished commemorative items (such as photo frames or watches) into the unique digital key to private messages."
+	},
 	"workflow": {
 		"title": "Streamlined & Robust Workflow",
 		"subtitle": "From a physical anchor to millisecond real-time unlocking",
@@ -27,8 +48,9 @@
 		"step4Desc": "The recipient scans the code and aligns the camera with the object. RANSAC verifies geometry and reveals the secret instantly."
 	},
 	"cta": {
-		"title": "Experience Visual Passwords Today",
-		"subtitle": "Unlock new paradigms for physical geocaching, confidential dropboxes, and anti-counterfeiting.",
-		"btn": "Launch Playground Now"
+		"title": "Ready to Experience VisionPass?",
+		"subtitle": "No sign-up required, 100% open source. Experience spatial mathematical collisions and secure visual decryption in the Playground.",
+		"btn": "Launch Playground Now",
+		"contribute": "Join Open Source Development"
 	}
 }

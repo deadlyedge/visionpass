@@ -157,11 +157,10 @@ export function LandingPage() {
 					<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
 						<div className="space-y-1">
 							<h3 className="text-xl font-bold text-white">
-								硬核全栈工程架构与工业级标准
+								{t('home.techHighlights.title')}
 							</h3>
 							<p className="text-xs text-slate-400">
-								专为 Serverless 与现代多端设备打造的无状态、零 C++/Python
-								依赖技术栈。
+								{t('home.techHighlights.subtitle')}
 							</p>
 						</div>
 						<Link
@@ -169,7 +168,7 @@ export function LandingPage() {
 							search={{ section: 'tech-stack' }}
 							className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 shrink-0 font-medium"
 						>
-							{t('home.exploreDocs')} →
+							{t('home.techHighlights.viewDetails')} →
 						</Link>
 					</div>
 
@@ -180,8 +179,7 @@ export function LandingPage() {
 								<span>TanStack Start</span>
 							</div>
 							<p className="text-xs text-slate-400 leading-relaxed">
-								React 19 + Nitro + Vite，类型安全的同构{' '}
-								<code>createServerFn</code> 通信。
+								{t('home.techHighlights.tanstackDesc')}
 							</p>
 						</div>
 
@@ -191,28 +189,27 @@ export function LandingPage() {
 								<span>OpenCV.js WASM</span>
 							</div>
 							<p className="text-xs text-slate-400 leading-relaxed">
-								Web Worker 隔离多线程运算，主线程稳定保持 60 FPS 顺畅响应。
+								{t('home.techHighlights.opencvDesc')}
 							</p>
 						</div>
 
 						<div className="space-y-2">
 							<div className="text-xs font-semibold text-emerald-300 flex items-center gap-1.5">
 								<Cpu className="w-4 h-4" />
-								<span>纯 TS 几何引擎</span>
+								<span>{t('home.techHighlights.pureTsTitle')}</span>
 							</div>
 							<p className="text-xs text-slate-400 leading-relaxed">
-								高斯消元求单应性矩阵与 Hamming 位运算，单次匹配耗时不超过 5ms。
+								{t('home.techHighlights.pureTsDesc')}
 							</p>
 						</div>
 
 						<div className="space-y-2">
 							<div className="text-xs font-semibold text-cyan-300 flex items-center gap-1.5">
 								<Lock className="w-4 h-4" />
-								<span>AES-256-GCM AEAD</span>
+								<span>{t('home.techHighlights.aeadTitle')}</span>
 							</div>
 							<p className="text-xs text-slate-400 leading-relaxed">
-								HMAC 加盐 Token
-								索引，密语强加密落盘，特征比对通过后方才实时解密。
+								{t('home.techHighlights.aeadDesc')}
 							</p>
 						</div>
 					</div>
@@ -223,10 +220,10 @@ export function LandingPage() {
 			<section className="max-w-5xl mx-auto px-4 sm:px-6 space-y-12">
 				<div className="text-center space-y-3">
 					<div className="text-xs font-mono uppercase tracking-wider text-indigo-400">
-						REAL WORLD USE CASES
+						{t('home.useCases.subtitle')}
 					</div>
 					<h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-						探索无限可能的应用场景
+						{t('home.useCases.title')}
 					</h2>
 				</div>
 
@@ -234,26 +231,30 @@ export function LandingPage() {
 					<div className="p-6 bg-slate-900/40 border border-slate-800 rounded-2xl space-y-3">
 						<div className="text-2xl">🕵️</div>
 						<h4 className="text-sm font-bold text-white">
-							线下实景寻宝 / 密室逃脱
+							{t('home.useCases.case1Title')}
 						</h4>
 						<p className="text-xs text-slate-400 leading-relaxed">
-							玩家必须到达特定的现实展品或特定地理实物面前拍照比对，才能解锁通向下一关的机密线索。
+							{t('home.useCases.case1Desc')}
 						</p>
 					</div>
 
 					<div className="p-6 bg-slate-900/40 border border-slate-800 rounded-2xl space-y-3">
 						<div className="text-2xl">📦</div>
-						<h4 className="text-sm font-bold text-white">高价值实体交接防伪</h4>
+						<h4 className="text-sm font-bold text-white">
+							{t('home.useCases.case2Title')}
+						</h4>
 						<p className="text-xs text-slate-400 leading-relaxed">
-							将重要设备封条或专属印章作为解锁交付密码的钥匙，杜绝未见实物直接冒领或远程代签。
+							{t('home.useCases.case2Desc')}
 						</p>
 					</div>
 
 					<div className="p-6 bg-slate-900/40 border border-slate-800 rounded-2xl space-y-3">
 						<div className="text-2xl">💌</div>
-						<h4 className="text-sm font-bold text-white">专属浪漫物理信物</h4>
+						<h4 className="text-sm font-bold text-white">
+							{t('home.useCases.case3Title')}
+						</h4>
 						<p className="text-xs text-slate-400 leading-relaxed">
-							将彼此珍视的专属纪念物件（如纪念相框、特定腕表）作为打开私密留言的唯一数字钥匙。
+							{t('home.useCases.case3Desc')}
 						</p>
 					</div>
 				</div>
@@ -284,7 +285,7 @@ export function LandingPage() {
 							className="px-6 py-3.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-medium rounded-xl text-sm transition flex items-center gap-2"
 						>
 							<GithubIcon className="w-4 h-4" />
-							<span>GitHub</span>
+							<span>{t('home.cta.contribute')}</span>
 						</a>
 					</div>
 				</div>

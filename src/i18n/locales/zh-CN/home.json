@@ -14,6 +14,27 @@
 		"f3Title": "三因子安全隔离",
 		"f3Desc": "自部署独立域名 + 易读短口令 (Passcode) + 空间几何单应性匹配 (Inliers >= 12)，三重要素缺一不可。"
 	},
+	"techHighlights": {
+		"title": "硬核全栈工程架构与工业级标准",
+		"subtitle": "专为 Serverless 与现代多端设备打造的无状态、零 C++/Python 依赖技术栈。",
+		"viewDetails": "查看技术选型细节",
+		"tanstackDesc": "React 19 + Nitro + Vite，类型安全的同构 createServerFn 通信。",
+		"opencvDesc": "Web Worker 隔离多线程运算，主线程稳定保持 60 FPS 顺畅响应。",
+		"pureTsTitle": "纯 TS 几何引擎",
+		"pureTsDesc": "高斯消元求单应性矩阵与 Hamming 位运算，单次匹配耗时不超过 5ms。",
+		"aeadTitle": "AES-256-GCM AEAD",
+		"aeadDesc": "HMAC 加盐 Token 索引，密语强加密落盘，特征比对通过后方才实时解密。"
+	},
+	"useCases": {
+		"title": "探索无限可能的应用场景",
+		"subtitle": "REAL WORLD USE CASES",
+		"case1Title": "线下实景寻宝 / 密室逃脱",
+		"case1Desc": "玩家必须到达特定的现实展品或特定地理实物面前拍照比对，才能解锁通向下一关的机密线索。",
+		"case2Title": "高价值实体交接防伪",
+		"case2Desc": "将重要设备封条或专属印章作为解锁交付密码的钥匙，杜绝未见实物直接冒领或远程代签。",
+		"case3Title": "专属浪漫物理信物",
+		"case3Desc": "将彼此珍视的专属纪念物件（如纪念相框、特定腕表）作为打开私密留言的唯一数字钥匙。"
+	},
 	"workflow": {
 		"title": "极简而坚固的工作流程",
 		"subtitle": "从一张实体参考图到毫秒级实景解锁",
@@ -27,8 +48,9 @@
 		"step4Desc": "接收方扫码后调起摄像头对准实物，RANSAC 几何匹配内点达标即刻解密。"
 	},
 	"cta": {
-		"title": "立即体验物理世界的视觉密码",
-		"subtitle": "开启去中心化物理寻宝、密信投递与防伪交接的全新体验",
-		"btn": "立即进入体验工坊"
+		"title": "准备好开启您的视觉密语体验了吗？",
+		"subtitle": "无需注册，完全开源。在 Playground 中体验两张照片之间的数学特征碰撞与安全解密。",
+		"btn": "进入演练场 (Playground)",
+		"contribute": "参与开源共建"
 	}
 }

@@ -162,74 +162,65 @@ export function DocsPage() {
 						<article className="space-y-8 animate-in fade-in duration-300">
 							<div className="space-y-3">
 								<div className="inline-flex items-center gap-1.5 text-xs text-indigo-400 font-mono">
-									<span>CHAPTER 01</span>
-									<span>/</span>
-									<span>PHILOSOPHY</span>
+									<span>{t('docs.sections.vision.chapter')}</span>
 								</div>
 								<h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-									愿景与安全哲学：为什么现实万物能成为密钥？
+									{t('docs.sections.vision.title')}
 								</h2>
 							</div>
 
 							<div className="prose prose-invert max-w-none text-slate-300 text-sm sm:text-base leading-relaxed space-y-6">
-								<p>
-									在数字化浪潮中，我们习惯了使用字符密码、短信验证码和二维码。然而：
-								</p>
+								<p>{t('docs.sections.vision.intro')}</p>
 
 								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
 									<div className="p-5 bg-slate-900/60 border border-slate-800 rounded-2xl space-y-2">
 										<div className="text-red-400 font-semibold flex items-center gap-2 text-sm">
-											<span>⚠️ 传统 2FA / 二维码的困境</span>
+											<span>{t('docs.sections.vision.traditionTitle')}</span>
 										</div>
 										<p className="text-xs text-slate-400 leading-relaxed">
-											二维码本质上只是由黑白方块编码的 URL
-											或文本，极易被翻拍、截屏并无损转发给地球另一端的任何人，丧失了“物理共场”的约束力。
+											{t('docs.sections.vision.traditionDesc')}
 										</p>
 									</div>
 
 									<div className="p-5 bg-slate-900/60 border border-slate-800 rounded-2xl space-y-2">
 										<div className="text-emerald-400 font-semibold flex items-center gap-2 text-sm">
-											<span>✨ 物理实体的不可复制性</span>
+											<span>{t('docs.sections.vision.physicalTitle')}</span>
 										</div>
 										<p className="text-xs text-slate-400 leading-relaxed">
-											桌上的一本书、墙上的油画、街角的铜雕，具有独一无二的纹理、微观特征和光影几何关系。只有亲临现场的人才能捕获这些光学特征。
+											{t('docs.sections.vision.physicalDesc')}
 										</p>
 									</div>
 								</div>
 
 								<h3 className="text-lg font-bold text-white mt-8 mb-4">
-									🛡️ 核心安全准则：零原图上云 (Privacy-First)
+									{t('docs.sections.vision.ruleTitle')}
 								</h3>
-								<p>
-									绝大部分图像识别系统要求将用户的私密照片直接上传至云端服务器进行推理。这带来了巨大的隐私泄露风险和合规隐患。
-								</p>
+								<p>{t('docs.sections.vision.ruleDesc1')}</p>
 								<p>
 									VisionPass 确立了不可动摇的
 									<strong className="text-indigo-400 font-medium ml-1">
-										第一铁律：原始相片仅在用户设备端停留，图像解码、缩放、灰度化与特征描述子提取全部在浏览器沙箱内完成。
-									</strong>
-									发送到服务端的仅仅是离散数学点坐标与 256 位 BRIEF
-									二进制向量，无法由这些离散点反向还原出原始图像画面。
+										{t('docs.sections.vision.ruleDesc2')}
+									</strong>{' '}
+									{t('docs.sections.vision.ruleDesc3')}
 								</p>
 
 								<div className="p-5 bg-indigo-950/30 border border-indigo-500/30 rounded-2xl space-y-3 mt-6">
 									<h4 className="text-sm font-semibold text-indigo-300 flex items-center gap-2">
 										<Lock className="w-4 h-4" />
-										威胁模型与防御矩阵 (Threat Model)
+										{t('docs.sections.vision.threatTitle')}
 									</h4>
 									<ul className="text-xs text-slate-300 space-y-2 list-disc list-inside">
 										<li>
-											<strong>抗数据库拖库 (DB Breach)</strong>
-											：凭证索引采用加盐 HMAC 哈希，密语采用 AES-256-GCM
-											主密钥加密存储，即使数据库泄漏也无法直接查得明文。
+											<strong>{t('docs.sections.vision.threat1Title')}</strong>
+											：{t('docs.sections.vision.threat1Desc')}
 										</li>
 										<li>
-											<strong>抗中间人篡改 (MITM)</strong>：全程 HTTPS 与端到端
-											Server Function 类型系统闭环。
+											<strong>{t('docs.sections.vision.threat2Title')}</strong>
+											：{t('docs.sections.vision.threat2Desc')}
 										</li>
 										<li>
-											<strong>抗单纯纹理欺骗 (Texture Spoofing)</strong>
-											：引入单应性矩阵（Homography）几何内点校验，拦截杂乱背景及无关物体的特征点撞库。
+											<strong>{t('docs.sections.vision.threat3Title')}</strong>
+											：{t('docs.sections.vision.threat3Desc')}
 										</li>
 									</ul>
 								</div>
@@ -242,46 +233,37 @@ export function DocsPage() {
 						<article className="space-y-8 animate-in fade-in duration-300">
 							<div className="space-y-3">
 								<div className="inline-flex items-center gap-1.5 text-xs text-amber-400 font-mono">
-									<span>CHAPTER 02</span>
-									<span>/</span>
-									<span>MATHEMATICAL ALGORITHMS</span>
+									<span>{t('docs.sections.algorithm.chapter')}</span>
 								</div>
 								<h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-									核心算法：从 ORB 特征描述子到 RANSAC 几何内点
+									{t('docs.sections.algorithm.title')}
 								</h2>
 							</div>
 
 							<div className="prose prose-invert max-w-none text-slate-300 text-sm sm:text-base leading-relaxed space-y-6">
-								<p>
-									计算机视觉识别物理物体的核心在于寻找对
-									<strong>
-										尺度变化（Scale）、旋转（Rotation）和光照强度（Illumination）
-									</strong>
-									具备强鲁棒性的局部不变性特征（Local Invariant Features）。
-								</p>
+								<p>{t('docs.sections.algorithm.intro')}</p>
 
 								{/* Step 1: ORB */}
 								<div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
 									<div className="flex items-center gap-2 text-indigo-400 font-bold text-base">
 										<Sparkles className="w-4 h-4" />
-										<span>1. ORB (Oriented FAST & Rotated BRIEF) 特征提取</span>
+										<span>{t('docs.sections.algorithm.orbTitle')}</span>
 									</div>
 									<p className="text-xs text-slate-300 leading-relaxed">
-										ORB 是由 Ethan Rublee 等人在 2011
-										年提出的超快速二进制特征描述算法，计算效率是传统 SIFT/SURF
-										的数十倍，非常适合在 Web 浏览器端实时计算：
+										{t('docs.sections.algorithm.orbDesc')}
 									</p>
 									<ul className="text-xs text-slate-400 space-y-2 list-disc list-inside">
 										<li>
-											<strong>oFAST 角点检测</strong>
-											：在圆形邻域内比对像素亮度，快速筛选候选特征点，并通过灰度质心法（Intensity
-											Centroid）计算主方向角度 theta。
+											<strong>
+												{t('docs.sections.algorithm.orbStep1Title')}
+											</strong>
+											：{t('docs.sections.algorithm.orbStep1Desc')}
 										</li>
 										<li>
-											<strong>rBRIEF 描述子生成</strong>：根据方向角 theta
-											旋转特征点采样点对，生成 256 位（32
-											字节）紧凑二进制串。两个描述子之间的相似度可通过极速的{' '}
-											<strong>Hamming 距离（位异或 + 位计数）</strong> 评估。
+											<strong>
+												{t('docs.sections.algorithm.orbStep2Title')}
+											</strong>
+											：{t('docs.sections.algorithm.orbStep2Desc')}
 										</li>
 									</ul>
 								</div>
@@ -290,19 +272,16 @@ export function DocsPage() {
 								<div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
 									<div className="flex items-center gap-2 text-amber-400 font-bold text-base">
 										<Zap className="w-4 h-4" />
-										<span>2. Lowe's Ratio Test (KNN 歧义匹配过滤)</span>
+										<span>{t('docs.sections.algorithm.loweTitle')}</span>
 									</div>
 									<p className="text-xs text-slate-300 leading-relaxed">
-										对于验证图中的每个特征描述子
-										dq，在参考图特征集合中寻找最近邻描述子 d1（Hamming 距离
-										distance(dq, d1)）和次近邻描述子 d2（Hamming 距离
-										distance(dq, d2)）。
+										{t('docs.sections.algorithm.loweDesc')}
 									</p>
 									<div className="p-3 bg-slate-950 font-mono text-xs rounded-xl border border-slate-800 text-amber-300">
 										Condition: distance(dq, d1) &lt; 0.75 * distance(dq, d2)
 									</div>
 									<p className="text-xs text-slate-400">
-										如果最近邻与次近邻距离过于接近，说明该特征在画面中存在重复纹理（如格子地砖），必须予以舍弃，仅保留唯一性明确的高质量匹配点对。
+										{t('docs.sections.algorithm.loweNote')}
 									</p>
 								</div>
 
@@ -310,36 +289,29 @@ export function DocsPage() {
 								<div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
 									<div className="flex items-center gap-2 text-emerald-400 font-bold text-base">
 										<Shield className="w-4 h-4" />
-										<span>
-											3. 2D 单应性矩阵 (Homography) 与 RANSAC 几何一致性检验
-										</span>
+										<span>{t('docs.sections.algorithm.ransacTitle')}</span>
 									</div>
 									<p className="text-xs text-slate-300 leading-relaxed">
-										即使通过了 Lowe's 比值测试，杂乱背景也可能碰巧产生若干低
-										Hamming 距离的假阳性匹配。VisionPass
-										引入了空间平面投影几何约束：
+										{t('docs.sections.algorithm.ransacDesc1')}
 									</p>
 									<p className="text-xs text-slate-400">
-										三维物理世界中同一个平面物体在不同视角下的成像满足 3x3
-										单应性矩阵关系 H：
+										{t('docs.sections.algorithm.ransacDesc2')}
 									</p>
 									<div className="p-3 bg-slate-950 font-mono text-xs rounded-xl border border-slate-800 text-emerald-300">
 										s * [x', y', 1]^T = H * [x, y, 1]^T
 									</div>
 									<p className="text-xs text-slate-400">
-										<strong>RANSAC (Random Sample Consensus) 迭代流程</strong>
-										：
+										<strong>
+											{t('docs.sections.algorithm.ransacStepsTitle')}
+										</strong>
 										<br />
-										1. 随机选取 4 对不共线的匹配点；
+										{t('docs.sections.algorithm.ransacStep1')}
 										<br />
-										2. 使用 DLT (Direct Linear Transformation)
-										与高斯消元法求解矩阵 H；
+										{t('docs.sections.algorithm.ransacStep2')}
 										<br />
-										3.
-										将所有参考点投影至验证坐标系，计算几何欧氏重投影误差投影偏差；
+										{t('docs.sections.algorithm.ransacStep3')}
 										<br />
-										4. 统计内点（Inliers）数量，当内点数达到预设阈值（Inliers
-										&gt;= 12）且行列式正常时，判定物理画面完全一致，放行密语！
+										{t('docs.sections.algorithm.ransacStep4')}
 									</p>
 								</div>
 							</div>
@@ -351,12 +323,10 @@ export function DocsPage() {
 						<article className="space-y-8 animate-in fade-in duration-300">
 							<div className="space-y-3">
 								<div className="inline-flex items-center gap-1.5 text-xs text-cyan-400 font-mono">
-									<span>CHAPTER 03</span>
-									<span>/</span>
-									<span>ENGINEERING STACK</span>
+									<span>{t('docs.sections.techStack.chapter')}</span>
 								</div>
 								<h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-									全栈技术选型：现代 Web 时代的轻量与高性能
+									{t('docs.sections.techStack.title')}
 								</h2>
 							</div>
 
@@ -364,48 +334,40 @@ export function DocsPage() {
 								<div className="p-5 bg-slate-900/70 border border-slate-800 rounded-2xl space-y-3">
 									<div className="flex items-center gap-2 text-indigo-400 font-semibold text-sm">
 										<Code2 className="w-4 h-4" />
-										<span>TanStack Start (React 19 + Nitro)</span>
+										<span>{t('docs.sections.techStack.tanstackTitle')}</span>
 									</div>
 									<p className="text-xs text-slate-400 leading-relaxed">
-										告别传统的独立 API Gateway 与手动 fetch。利用 TanStack Start
-										的 <code>createServerFn</code> 实现完全类型安全的前后端 RPC
-										通信，自动完成 Tree-shaking 与服务端打包。
+										{t('docs.sections.techStack.tanstackDesc')}
 									</p>
 								</div>
 
 								<div className="p-5 bg-slate-900/70 border border-slate-800 rounded-2xl space-y-3">
 									<div className="flex items-center gap-2 text-amber-400 font-semibold text-sm">
 										<Zap className="w-4 h-4" />
-										<span>Web Worker + OpenCV.js WASM</span>
+										<span>{t('docs.sections.techStack.opencvTitle')}</span>
 									</div>
 									<p className="text-xs text-slate-400 leading-relaxed">
-										将重量级 WASM 运行时与图像缩放、灰度化及 ORB
-										描述子提取移至独立 Worker 线程，主线程保持 60 FPS
-										顺滑响应，杜绝任何 UI 掉帧卡顿。
+										{t('docs.sections.techStack.opencvDesc')}
 									</p>
 								</div>
 
 								<div className="p-5 bg-slate-900/70 border border-slate-800 rounded-2xl space-y-3">
 									<div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
 										<Cpu className="w-4 h-4" />
-										<span>纯 TypeScript 工业级几何匹配器</span>
+										<span>{t('docs.sections.techStack.pureTsTitle')}</span>
 									</div>
 									<p className="text-xs text-slate-400 leading-relaxed">
-										服务端完全不依赖 Python 脚本或 Node C++
-										动态链接库（node-gyp）。使用 TS 纯位运算（Brian Kernighan
-										算法）+ 高斯消元实现 RANSAC，单次比对耗时不超过
-										5ms，天然适配 Serverless 与 Edge。
+										{t('docs.sections.techStack.pureTsDesc')}
 									</p>
 								</div>
 
 								<div className="p-5 bg-slate-900/70 border border-slate-800 rounded-2xl space-y-3">
 									<div className="flex items-center gap-2 text-cyan-400 font-semibold text-sm">
 										<Lock className="w-4 h-4" />
-										<span>Drizzle ORM + PostgreSQL + Crypto</span>
+										<span>{t('docs.sections.techStack.dbTitle')}</span>
 									</div>
 									<p className="text-xs text-slate-400 leading-relaxed">
-										轻量化 ORM 配合原生 Node.js Crypto
-										模块（AES-256-GCM、HMAC-SHA-256），实现生产级加密落盘、滑动窗口限流与详尽的验证尝试审计日志。
+										{t('docs.sections.techStack.dbDesc')}
 									</p>
 								</div>
 							</div>
@@ -417,65 +379,52 @@ export function DocsPage() {
 						<article className="space-y-8 animate-in fade-in duration-300">
 							<div className="space-y-3">
 								<div className="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-mono">
-									<span>CHAPTER 04</span>
-									<span>/</span>
-									<span>CODE ARCHITECTURE</span>
+									<span>{t('docs.sections.architecture.chapter')}</span>
 								</div>
 								<h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-									代码架构与数据流时序全景
+									{t('docs.sections.architecture.title')}
 								</h2>
 							</div>
 
 							{/* Directory Map */}
 							<div className="space-y-3">
 								<h3 className="text-sm font-bold text-white">
-									📁 模块职责拓扑
+									{t('docs.sections.architecture.moduleTitle')}
 								</h3>
 								<pre className="p-4 bg-slate-950 border border-slate-800 rounded-2xl text-xs text-slate-300 font-mono overflow-x-auto leading-relaxed">
 									{`visionpass/
 ├── src/
 │   ├── routes/              # TanStack Router (/, /playground, /docs, /r/$token)
-│   ├── components/          # 交互层 (Playground, ImagePicker, QrResult, Viewer)
-│   ├── workers/             # OpenCV.js WASM 图像特征提取 Worker 线程
-│   ├── hooks/               # 摄像头流管理、扫码引擎与实时 ORB 抽帧 Hook
-│   ├── server/              # Nitro 服务端独占体系
-│   │   ├── crypto/          # CSPRNG Token、HMAC-SHA-256 与 AES-256-GCM
-│   │   ├── matcher/         # 纯 TS Hamming KNN 与 RANSAC 单应性几何匹配引擎
+│   ├── components/          # UI Components (Playground, ImagePicker, QrResult, Viewer)
+│   ├── workers/             # OpenCV.js WASM ORB Feature Extraction Worker
+│   ├── hooks/               # MediaStream, Barcode Scanner & Live ORB Hooks
+│   ├── server/              # Nitro Server Functions
+│   │   ├── crypto/          # CSPRNG Token, HMAC-SHA-256 & AES-256-GCM
+│   │   ├── matcher/         # Pure TS Hamming KNN & RANSAC Homography Matcher
 │   │   ├── db/              # PostgreSQL Drizzle Schema (credentials, audit logs)
-│   │   └── functions/       # createServerFn 核心端点 (create, verify, meta)
-│   └── lib/                 # 前后端共享编解码、常量与 Zod 协议定义`}
+│   │   └── functions/       # createServerFn Endpoints (create, verify, meta)
+│   └── lib/                 # Shared Codecs, Constants & Zod Schemas`}
 								</pre>
 							</div>
 
 							{/* Sequence Explanation */}
 							<div className="space-y-4 pt-4 border-t border-slate-800">
 								<h3 className="text-sm font-bold text-white">
-									🔄 业务闭环时序链路
+									{t('docs.sections.architecture.sequenceTitle')}
 								</h3>
 								<div className="space-y-3 text-xs text-slate-300 leading-relaxed">
 									<div className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl space-y-1.5">
 										<div className="font-semibold text-indigo-300">
-											① 凭证创建链路 (Creation Sequence)
+											{t('docs.sections.architecture.seq1Title')}
 										</div>
-										<p>
-											用户选择本地参考图 → 浏览器 Web Worker 缩放至 640px 提取
-											ORB 描述子与坐标 → 打包为 <code>OrbFeaturePayloadV1</code>{' '}
-											→ 调用 <code>createCredentialFn</code> → 服务端生成口令并
-											AES-256-GCM 加密密语 → 写入 PostgreSQL →
-											客户端生成分享海报。
-										</p>
+										<p>{t('docs.sections.architecture.seq1Desc')}</p>
 									</div>
 
 									<div className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl space-y-1.5">
 										<div className="font-semibold text-emerald-300">
-											② 实时扫码比对链路 (Continuous Verification Sequence)
+											{t('docs.sections.architecture.seq2Title')}
 										</div>
-										<p>
-											用户调起摄像头 → jsQR/BarcodeDetector 秒级识别口令 →
-											保持摄像头连续运行无缝切入实时特征提取 → 800ms 抽帧提交{' '}
-											<code>verifyCredentialFn</code> → 服务端取出特征向量执行
-											RANSAC 几何一致性检验 → 判定通过后实时解密并返回机密文本。
-										</p>
+										<p>{t('docs.sections.architecture.seq2Desc')}</p>
 									</div>
 								</div>
 							</div>
